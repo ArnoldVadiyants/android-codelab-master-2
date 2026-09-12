@@ -1,6 +1,7 @@
 package com.sap.codelab.view.create
 
 import androidx.lifecycle.ViewModel
+import com.sap.codelab.location.LatLng
 import com.sap.codelab.model.Memo
 import com.sap.codelab.repository.Repository
 import com.sap.codelab.utils.coroutines.ScopeProvider
@@ -13,6 +14,9 @@ import kotlinx.coroutines.launch
 internal class CreateMemoViewModel : ViewModel() {
 
     private var memo = Memo(0, String.empty(), String.empty(), 0, 0, 0, false)
+    private var selectedLocation: LatLng? = null
+
+    val location: LatLng? get() = selectedLocation
 
     /**
      * Saves the memo in it's current state.
@@ -27,7 +31,23 @@ internal class CreateMemoViewModel : ViewModel() {
      * Call this method to update the memo. This is usually needed when the user changed his input.
      */
     fun updateMemo(title: String, description: String) {
-        memo = Memo(title = title, description = description, id = 0, reminderDate = 0, reminderLatitude = 0, reminderLongitude = 0, isDone = false)
+        memo = Memo(
+            title = title,
+            description = description,
+            id = 0,
+            reminderDate = 0,
+            reminderLatitude = selectedLocation?.latitude?.toBits() ?: 0L,
+            reminderLongitude = selectedLocation?.longitude?.toBits() ?: 0L,
+            isDone = false
+        )
+    }
+
+    fun updateLocation(latLng: LatLng) {
+        selectedLocation = latLng
+    }
+
+    fun clearLocation() {
+        selectedLocation = null
     }
 
     /**

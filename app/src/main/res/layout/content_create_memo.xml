@@ -11,9 +11,13 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/memo_title_container"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxBackgroundMode="outline"
         app:errorEnabled="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -26,9 +30,13 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/memo_description_container"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxBackgroundMode="outline"
         app:errorEnabled="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/memo_title_container">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -39,5 +47,158 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Location section: Empty state -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/location_empty_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/memo_description_container">
+
+        <ImageView
+            android:id="@+id/ic_location_empty"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_circle_primary"
+            android:contentDescription="@null"
+            android:padding="12dp"
+            android:src="@drawable/ic_location_on"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/location_action_foreground" />
+
+        <TextView
+            android:id="@+id/tv_location_optional_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/location_optional"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ic_location_empty"
+            app:layout_constraintTop_toTopOf="@id/ic_location_empty" />
+
+        <TextView
+            android:id="@+id/tv_location_helper"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/location_helper_text"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ic_location_empty"
+            app:layout_constraintTop_toBottomOf="@id/tv_location_optional_title" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_empty_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="ic_location_empty,tv_location_helper" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/pick_location_button"
+            style="@style/Widget.App.LocationButton.Pick"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/pick_location"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barrier_empty_header" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Location section: Selected state -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/location_selected_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/memo_description_container">
+
+        <ImageView
+            android:id="@+id/ic_location_selected"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_circle_primary"
+            android:contentDescription="@null"
+            android:padding="10dp"
+            android:src="@drawable/ic_location_on"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/location_action_foreground" />
+
+        <TextView
+            android:id="@+id/tv_location_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/location"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ic_location_selected"
+            app:layout_constraintTop_toTopOf="@id/ic_location_selected" />
+
+        <TextView
+            android:id="@+id/location_coordinates"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/ic_location_selected"
+            app:layout_constraintTop_toBottomOf="@id/tv_location_title"
+            tools:text="42.15798, 24.73935" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_selected_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="ic_location_selected,location_coordinates" />
+
+        <org.osmdroid.views.MapView
+            android:id="@+id/location_map_preview"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barrier_selected_header" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/change_location_button"
+            style="@style/Widget.App.LocationButton.Change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="4dp"
+            android:text="@string/change_location"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/location_map_preview" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/clear_location_button"
+            style="@style/Widget.App.LocationButton.Clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/clear_location"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/location_map_preview" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

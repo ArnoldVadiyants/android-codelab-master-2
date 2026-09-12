@@ -8,4 +8,19 @@
     <string name="action_save">Save</string>
     <string name="memo_title_empty_error">Please provide a title for this memo</string>
     <string name="memo_text_empty_error">Please provide a memo description</string>
+    <string name="pick_location">Pick Location</string>
+    <string name="location_selected">Location: %.5f, %.5f</string>
+    <string name="confirm_location">Confirm</string>
+    <string name="selected_location">Selected location</string>
+    <string name="location_permission_denied">Location permission denied. Tap the map to pick a location manually.</string>
+    <string name="location_disabled_title">Location is disabled</string>
+    <string name="location_disabled_message">To center the map on your current position, please enable location services on your device.</string>
+    <string name="location_disabled_open_settings">Open Settings</string>
+    <string name="my_location">My location</string>
+    <string name="location_optional">Location (optional)</string>
+    <string name="location_helper_text">Add a location to get a reminder when you are nearby.</string>
+    <string name="location">Location</string>
+    <string name="location_coordinates">%.5f, %.5f</string>
+    <string name="change_location">Change Location</string>
+    <string name="clear_location">Clear</string>
 </resources>
