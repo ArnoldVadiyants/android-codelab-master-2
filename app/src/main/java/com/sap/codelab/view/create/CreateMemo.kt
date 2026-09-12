@@ -1,6 +1,7 @@
 package com.sap.codelab.view.create
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +11,9 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.sap.codelab.R
 import com.sap.codelab.databinding.ActivityCreateMemoBinding
@@ -48,7 +51,7 @@ internal class CreateMemo : AppCompatActivity() {
             locationPicker.parseResult(result.data)?.let { latLng ->
                 model.updateLocation(latLng)
                 showLocationSelected(latLng)
-                requestBackgroundLocationIfNeeded()
+                showPermissionRationaleAndRequest()
             }
         }
     }
@@ -162,10 +165,31 @@ internal class CreateMemo : AppCompatActivity() {
             } else {
                 memoTitleContainer.error =
                     getErrorMessage(model.hasTitleError(), R.string.memo_title_empty_error)
-                memoDescription.error =
+                memoDescriptionContainer.error =
                     getErrorMessage(model.hasTextError(), R.string.memo_text_empty_error)
             }
         }
+    }
+
+    private fun showPermissionRationaleAndRequest() {
+        if (!needsAnyPermission()) {
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.permission_rationale_title)
+            .setMessage(R.string.permission_rationale_message)
+            .setPositiveButton(R.string.permission_rationale_confirm) { _, _ ->
+                requestBackgroundLocationIfNeeded()
+            }
+            .show()
+    }
+
+    private fun needsAnyPermission(): Boolean {
+        val needsBackgroundLocation = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED
+        val needsNotification = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        return needsBackgroundLocation || needsNotification
     }
 
     private fun requestNotificationPermission() {

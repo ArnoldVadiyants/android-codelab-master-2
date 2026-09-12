@@ -1,13 +1,13 @@
 package com.sap.codelab.view.home
 
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.sap.codelab.databinding.RecyclerviewMemoBinding
 import com.sap.codelab.model.Memo
-import kotlin.math.max
 
 /**
  * Adapter containing a set of memos.
@@ -31,10 +31,17 @@ internal class MemoAdapter(private val items: MutableList<Memo>,
      * Updates the current list of items to the given list of items.
      */
     fun setItems(newItems: List<Memo>) {
-        val count = itemCount
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = items.size
+            override fun getNewListSize() = newItems.size
+            override fun areItemsTheSame(oldPos: Int, newPos: Int) =
+                items[oldPos].id == newItems[newPos].id
+            override fun areContentsTheSame(oldPos: Int, newPos: Int) =
+                items[oldPos] == newItems[newPos]
+        })
         items.clear()
         items.addAll(newItems)
-        notifyItemRangeChanged(0, max(count, itemCount))
+        diffResult.dispatchUpdatesTo(this)
     }
 
     /**
