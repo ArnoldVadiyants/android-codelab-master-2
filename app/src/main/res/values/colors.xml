@@ -2,6 +2,7 @@
 <resources>
     <color name="colorPrimary">#9ccc65</color>
     <color name="colorPrimaryDark">#6b9b37</color>
+    <color name="colorSecondary">#558B2F</color>
     <color name="colorAccent">#ff7043</color>
     <color name="white">#FFFFFF</color>
     <color name="location_action_background">#E8F3E5</color>

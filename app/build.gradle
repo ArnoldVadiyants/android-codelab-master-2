@@ -9,10 +9,10 @@ plugins {
 android {
     namespace "com.sap.codelab"
     compileSdk = 36
-    buildToolsVersion '36.0.0'
     defaultConfig {
         applicationId "com.sap.codelab"
-        minSdkVersion 27
+        minSdk 27
+        targetSdk 36
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -20,7 +20,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
@@ -44,10 +44,12 @@ ext {
     kotlinCoroutinesVersion = '1.10.2'
     roomVersion = '2.7.2'
     lifecycleVersion = '2.9.3'
+    playServicesLocationVersion = '21.3.0'
+    workVersion = '2.10.0'
+    osmdroidVersion = '6.1.20'
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.core:core-ktx:1.17.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
@@ -67,8 +69,14 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
 
-    //OSMDroid map (no API key required)
-    implementation 'org.osmdroid:osmdroid-android:6.1.20'
+    //Open Street Map (no API key required)
+    implementation "org.osmdroid:osmdroid-android:$osmdroidVersion"
+
+    // Geofencing
+    implementation "com.google.android.gms:play-services-location:$playServicesLocationVersion"
+
+    // WorkManager
+    implementation "androidx.work:work-runtime-ktx:$workVersion"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.3.0'

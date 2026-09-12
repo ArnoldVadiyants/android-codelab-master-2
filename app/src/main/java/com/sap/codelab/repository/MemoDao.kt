@@ -28,7 +28,13 @@ internal interface MemoDao {
      * Inserts the given Memo into the database. We currently do not support updating of memos.
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(memo: Memo)
+    fun insert(memo: Memo): Long
+
+    /**
+     * @return all memos that have a location and have not yet fired their location reminder.
+     */
+    @Query("SELECT * FROM memo WHERE isDone = 0 AND reminderLatitude != 0 AND reminderLongitude != 0")
+    fun getActiveLocationReminders(): List<Memo>
 
     /**
      * @return the memo whose id matches the given id.

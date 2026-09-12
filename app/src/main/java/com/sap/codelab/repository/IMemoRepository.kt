@@ -9,8 +9,9 @@ internal interface IMemoRepository {
 
     /**
      * Saves the given memo to the database.
+     * @return the row id of the saved memo.
      */
-    fun saveMemo(memo: Memo)
+    fun saveMemo(memo: Memo): Long
 
     /**
      * @return all memos currently in the database.
@@ -26,4 +27,9 @@ internal interface IMemoRepository {
      * @return the memo whose id matches the given id.
      */
     fun getMemoById(id: Long): Memo
+
+    /**
+     * @return all memos that have an active location reminder (have coordinates and are not done).
+     */
+    fun getActiveLocationReminders(): List<Memo>
 }

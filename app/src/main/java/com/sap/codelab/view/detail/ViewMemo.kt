@@ -5,16 +5,16 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.sap.codelab.KEY_MEMO_ID
 import com.sap.codelab.R
 import com.sap.codelab.databinding.ActivityViewMemoBinding
 import com.sap.codelab.model.Memo
+import com.sap.codelab.utils.extensions.applyWindowInsets
 import kotlinx.coroutines.launch
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.Marker
-
-internal const val BUNDLE_MEMO_ID: String = "memoId"
 
 /**
  * Activity that allows a user to see the details of a memo.
@@ -29,6 +29,7 @@ internal class ViewMemo : AppCompatActivity() {
         binding = ActivityViewMemoBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        applyWindowInsets(binding.root, binding.appBar)
         // Initialize views with the passed memo id
         val model = ViewModelProvider(this)[ViewMemoViewModel::class.java]
         lifecycleScope.launch {
@@ -39,7 +40,7 @@ internal class ViewMemo : AppCompatActivity() {
             }
         }
         if (savedInstanceState == null) {
-            val id = intent.getLongExtra(BUNDLE_MEMO_ID, -1)
+            val id = intent.getLongExtra(KEY_MEMO_ID, -1)
             model.loadMemo(id)
         }
     }
@@ -56,7 +57,7 @@ internal class ViewMemo : AppCompatActivity() {
             memoDescription.setText(memo.description)
             memoDescription.isEnabled = false
 
-            val hasLocation = memo.reminderLatitude != 0L || memo.reminderLongitude != 0L
+            val hasLocation = memo.reminderLatitude != 0L && memo.reminderLongitude != 0L
             if (hasLocation) {
                 val lat = Double.fromBits(memo.reminderLatitude)
                 val lng = Double.fromBits(memo.reminderLongitude)

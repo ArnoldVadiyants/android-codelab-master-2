@@ -52,7 +52,6 @@
         android:id="@+id/location_empty_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/memo_description_container">
@@ -61,13 +60,12 @@
             android:id="@+id/ic_location_empty"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@drawable/bg_circle_primary"
             android:contentDescription="@null"
-            android:padding="12dp"
-            android:src="@drawable/ic_location_on"
+            android:padding="2dp"
+            android:src="@drawable/ic_location_filled"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/location_action_foreground" />
+            />
 
         <TextView
             android:id="@+id/tv_location_optional_title"
@@ -118,7 +116,6 @@
         android:id="@+id/location_selected_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -128,13 +125,11 @@
             android:id="@+id/ic_location_selected"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@drawable/bg_circle_primary"
             android:contentDescription="@null"
-            android:padding="10dp"
-            android:src="@drawable/ic_location_on"
+            android:padding="2dp"
+            android:src="@drawable/ic_location_filled"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/location_action_foreground" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/tv_location_title"

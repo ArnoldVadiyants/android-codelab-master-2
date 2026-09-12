@@ -23,4 +23,5 @@
     <string name="location_coordinates">%.5f, %.5f</string>
     <string name="change_location">Change Location</string>
     <string name="clear_location">Clear</string>
+    <string name="notification_channel_location_reminders">Location Reminders</string>
 </resources>

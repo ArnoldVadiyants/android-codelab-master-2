@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Light circular background -->
+    <path
+        android:fillColor="@color/location_action_background"
+        android:pathData="
+            M54,4
+            A50,50 0,1 0,54,104
+            A50,50 0,1 0,54,4" />
+
+    <!-- Location pin -->
+    <path
+        android:fillColor="@color/location_action_foreground"
+        android:pathData="
+            M54,25 C40.2,25 29,36.2 29,50
+            C29,68.5 54,87 54,87
+            C54,87 79,68.5 79,50
+            C79,36.2 67.8,25 54,25Z M54,39
+            A11,11 0,1 0,54,61
+            A11,11 0,1 0,54,39Z"
+        android:fillType="evenOdd" />
+
+</vector>

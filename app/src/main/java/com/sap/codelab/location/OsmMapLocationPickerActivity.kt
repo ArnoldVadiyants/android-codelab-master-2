@@ -12,8 +12,11 @@ import androidx.activity.result.contract.ActivityResultContracts.RequestPermissi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.sap.codelab.EXTRA_LATITUDE
+import com.sap.codelab.EXTRA_LONGITUDE
 import com.sap.codelab.R
 import com.sap.codelab.databinding.ActivityOsmMapLocationPickerBinding
+import com.sap.codelab.utils.extensions.applyWindowInsets
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -26,10 +29,6 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 internal class OsmMapLocationPickerActivity : AppCompatActivity() {
 
     companion object {
-        const val EXTRA_LATITUDE = "extra_latitude"
-        const val EXTRA_LONGITUDE = "extra_longitude"
-        const val EXTRA_INITIAL_LATITUDE = "extra_initial_latitude"
-        const val EXTRA_INITIAL_LONGITUDE = "extra_initial_longitude"
         private const val DEFAULT_ZOOM = 5.0
         private const val LOCATION_ZOOM = 20.0
     }
@@ -58,6 +57,7 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        applyWindowInsets(binding.root, binding.appBar)
 
         setupMap()
         restoreInitialLocationOrCenter()
@@ -86,8 +86,8 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
     }
 
     private fun restoreInitialLocationOrCenter() {
-        val lat = intent.getDoubleExtra(EXTRA_INITIAL_LATITUDE, Double.NaN)
-        val lng = intent.getDoubleExtra(EXTRA_INITIAL_LONGITUDE, Double.NaN)
+        val lat = intent.getDoubleExtra(EXTRA_LATITUDE, Double.NaN)
+        val lng = intent.getDoubleExtra(EXTRA_LONGITUDE, Double.NaN)
         if (!lat.isNaN() && !lng.isNaN()) {
             val point = GeoPoint(lat, lng)
             placeMarker(point)

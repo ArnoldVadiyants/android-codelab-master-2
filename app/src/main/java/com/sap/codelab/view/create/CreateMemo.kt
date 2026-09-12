@@ -1,9 +1,13 @@
 package com.sap.codelab.view.create
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +17,7 @@ import com.sap.codelab.databinding.ActivityCreateMemoBinding
 import com.sap.codelab.location.IMapLocationPicker
 import com.sap.codelab.location.LatLng
 import com.sap.codelab.location.OsmMapLocationPicker
+import com.sap.codelab.utils.extensions.applyWindowInsets
 import com.sap.codelab.utils.extensions.empty
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -28,11 +33,22 @@ internal class CreateMemo : AppCompatActivity() {
     private lateinit var model: CreateMemoViewModel
     private val locationPicker: IMapLocationPicker = OsmMapLocationPicker()
 
+    private val notificationPermissionLauncher = registerForActivityResult(RequestPermission()) {
+        // Result ignored
+    }
+
+    private val backgroundLocationLauncher = registerForActivityResult(RequestPermission()) {
+        // Result ignored
+        // Request next notification permission
+        requestNotificationPermission()
+    }
+
     private val mapPickerLauncher = registerForActivityResult(StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             locationPicker.parseResult(result.data)?.let { latLng ->
                 model.updateLocation(latLng)
                 showLocationSelected(latLng)
+                requestBackgroundLocationIfNeeded()
             }
         }
     }
@@ -44,6 +60,7 @@ internal class CreateMemo : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         model = ViewModelProvider(this)[CreateMemoViewModel::class.java]
+        applyWindowInsets(binding.root, binding.appBar)
 
         initPreviewMap()
         setupLocationButtons()
@@ -148,6 +165,19 @@ internal class CreateMemo : AppCompatActivity() {
                 memoDescription.error =
                     getErrorMessage(model.hasTextError(), R.string.memo_text_empty_error)
             }
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Log.d("ARNOLD", "Requesting notification permission")
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    private fun requestBackgroundLocationIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            backgroundLocationLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
     }
 

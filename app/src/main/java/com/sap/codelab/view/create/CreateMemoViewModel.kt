@@ -1,6 +1,7 @@
 package com.sap.codelab.view.create
 
 import androidx.lifecycle.ViewModel
+import com.sap.codelab.AppDependencies
 import com.sap.codelab.location.LatLng
 import com.sap.codelab.model.Memo
 import com.sap.codelab.repository.Repository
@@ -19,11 +20,21 @@ internal class CreateMemoViewModel : ViewModel() {
     val location: LatLng? get() = selectedLocation
 
     /**
-     * Saves the memo in it's current state.
+     * Saves the memo and registers a geofence if a location was selected.
      */
     fun saveMemo() {
         ScopeProvider.application.launch {
-            Repository.saveMemo(memo)
+            val savedId = Repository.saveMemo(memo)
+            val location = selectedLocation
+            if (location != null) {
+                runCatching {
+                    AppDependencies.locationReminderManager.addReminder(
+                        memoId = savedId,
+                        latitude = location.latitude,
+                        longitude = location.longitude
+                    )
+                }
+            }
         }
     }
 
