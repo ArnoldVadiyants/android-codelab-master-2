@@ -53,12 +53,13 @@ internal class GeofenceBroadcastReceiver : BroadcastReceiver() {
         val workManager = WorkManager.getInstance(context)
         Log.d("GeofenceReceiver", "Triggered memo ids: $memoIds")
         memoIds.forEach { memoId ->
-            val request = OneTimeWorkRequestBuilder<GeofenceTriggeredWorker>()
-                .setInputData(workDataOf(KEY_MEMO_ID to memoId))
-                .build()
-
             // KEEP ensures a duplicate broadcast for the same memo enqueues at most one worker
-            workManager.enqueueUniqueWork(memoId.toString(), ExistingWorkPolicy.KEEP, request)
+            workManager.enqueueUniqueWork(memoId.toString(), ExistingWorkPolicy.KEEP, buildWorkRequest(memoId))
         }
     }
+
+    private fun buildWorkRequest(memoId: Long) =
+        OneTimeWorkRequestBuilder<GeofenceTriggeredWorker>()
+            .setInputData(workDataOf(KEY_MEMO_ID to memoId))
+            .build()
 }

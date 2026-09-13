@@ -30,12 +30,11 @@ class OsmLocationMapView @JvmOverloads constructor(
         controller.setZoom(15.0)
         controller.setCenter(point)
         overlays.clear()
-        Marker(this).also { marker ->
-            marker.position = point
-            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            marker.infoWindow = null
-            overlays.add(marker)
-        }
+        overlays.add(Marker(this).apply {
+            position = point
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            infoWindow = null
+        })
         invalidate()
     }
 }

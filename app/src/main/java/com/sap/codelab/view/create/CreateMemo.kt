@@ -71,17 +71,17 @@ internal class CreateMemo : AppCompatActivity() {
 
     private fun setupLocationButtons() {
         binding.contentCreateMemo.run {
-            pickLocationButton.setOnClickListener {
-                mapPickerLauncher.launch(locationPicker.createIntent(this@CreateMemo, model.location))
-            }
-            changeLocationButton.setOnClickListener {
-                mapPickerLauncher.launch(locationPicker.createIntent(this@CreateMemo, model.location))
-            }
+            pickLocationButton.setOnClickListener { launchMapPicker() }
+            changeLocationButton.setOnClickListener { launchMapPicker() }
             clearLocationButton.setOnClickListener {
                 model.clearLocation()
                 showLocationEmpty()
             }
         }
+    }
+
+    private fun launchMapPicker() {
+        mapPickerLauncher.launch(locationPicker.createIntent(this, model.location))
     }
 
     private fun showLocationSelected(latLng: LatLng) {
@@ -142,11 +142,17 @@ internal class CreateMemo : AppCompatActivity() {
                 setResult(RESULT_OK)
                 finish()
             } else {
-                memoTitleContainer.error =
-                    getErrorMessage(model.hasTitleError(), R.string.memo_title_empty_error)
-                memoDescriptionContainer.error =
-                    getErrorMessage(model.hasTextError(), R.string.memo_text_empty_error)
+                showValidationErrors()
             }
+        }
+    }
+
+    private fun showValidationErrors() {
+        binding.contentCreateMemo.run {
+            memoTitleContainer.error =
+                getErrorMessage(model.hasTitleError(), R.string.memo_title_empty_error)
+            memoDescriptionContainer.error =
+                getErrorMessage(model.hasTextError(), R.string.memo_text_empty_error)
         }
     }
 

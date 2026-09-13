@@ -3,12 +3,13 @@ package com.sap.codelab.view.detail
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.sap.codelab.KEY_MEMO_ID
 import com.sap.codelab.R
 import com.sap.codelab.databinding.ActivityViewMemoBinding
-import com.sap.codelab.location.LatLng
 import com.sap.codelab.location.LocationMapView
 import com.sap.codelab.model.Memo
 import com.sap.codelab.utils.extensions.applyWindowInsets
@@ -32,9 +33,11 @@ internal class ViewMemo : AppCompatActivity() {
         // Initialize views with the passed memo id
         val model = ViewModelProvider(this)[ViewMemoViewModel::class.java]
         lifecycleScope.launch {
-            model.memo.collect { value ->
-                value?.let { memo ->
-                    updateUI(memo)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.memo.collect { value ->
+                    value?.let { memo ->
+                        updateUI(memo)
+                    }
                 }
             }
         }
@@ -50,25 +53,30 @@ internal class ViewMemo : AppCompatActivity() {
      * @param memo - the memo whose details are to be displayed.
      */
     private fun updateUI(memo: Memo) {
+        setupTextFields(memo)
+        updateLocationSection(memo)
+    }
+
+    private fun setupTextFields(memo: Memo) {
         binding.contentCreateMemo.run {
             memoTitle.setText(memo.title)
             memoTitle.isEnabled = false
             memoDescription.setText(memo.description)
             memoDescription.isEnabled = false
+        }
+    }
 
-            if (memo.hasLocationReminder) {
-                val lat = Double.fromBits(memo.reminderLatitude)
-                val lng = Double.fromBits(memo.reminderLongitude)
-
+    private fun updateLocationSection(memo: Memo) {
+        val location = memo.reminderLocation
+        binding.contentCreateMemo.run {
+            if (location != null) {
                 locationEmptyContainer.visibility = View.GONE
                 locationSelectedContainer.visibility = View.VISIBLE
                 locationMapView.visibility = View.VISIBLE
-                locationCoordinates.text = getString(R.string.location_coordinates, lat, lng)
-
+                locationCoordinates.text = getString(R.string.location_coordinates, location.latitude, location.longitude)
                 changeLocationButton.visibility = View.GONE
                 clearLocationButton.visibility = View.GONE
-
-                mapView.showLocation(LatLng(lat, lng))
+                mapView.showLocation(location)
             } else {
                 locationEmptyContainer.visibility = View.GONE
                 locationSelectedContainer.visibility = View.GONE

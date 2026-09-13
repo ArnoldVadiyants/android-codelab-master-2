@@ -16,7 +16,7 @@ internal class MemoAdapter(private val items: MutableList<Memo>,
                            private val onClick: View.OnClickListener,
                            private val onCheckboxChanged: CompoundButton.OnCheckedChangeListener) : RecyclerView.Adapter<MemoViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewTypee: Int): MemoViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MemoViewHolder {
         return MemoViewHolder(newItemViewBinding(parent))
     }
 
@@ -31,14 +31,7 @@ internal class MemoAdapter(private val items: MutableList<Memo>,
      * Updates the current list of items to the given list of items.
      */
     fun setItems(newItems: List<Memo>) {
-        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-            override fun getOldListSize() = items.size
-            override fun getNewListSize() = newItems.size
-            override fun areItemsTheSame(oldPos: Int, newPos: Int) =
-                items[oldPos].id == newItems[newPos].id
-            override fun areContentsTheSame(oldPos: Int, newPos: Int) =
-                items[oldPos] == newItems[newPos]
-        })
+        val diffResult = DiffUtil.calculateDiff(MemoDiffCallback(items, newItems))
         items.clear()
         items.addAll(newItems)
         diffResult.dispatchUpdatesTo(this)
@@ -51,6 +44,16 @@ internal class MemoAdapter(private val items: MutableList<Memo>,
      * @return the view binding.
      */
     private fun newItemViewBinding(parent: ViewGroup): RecyclerviewMemoBinding {
-        return RecyclerviewMemoBinding.inflate(LayoutInflater.from(parent.context))
+        return RecyclerviewMemoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+    }
+
+    private class MemoDiffCallback(
+        private val old: List<Memo>,
+        private val new: List<Memo>
+    ) : DiffUtil.Callback() {
+        override fun getOldListSize() = old.size
+        override fun getNewListSize() = new.size
+        override fun areItemsTheSame(oldPos: Int, newPos: Int) = old[oldPos].id == new[newPos].id
+        override fun areContentsTheSame(oldPos: Int, newPos: Int) = old[oldPos] == new[newPos]
     }
 }

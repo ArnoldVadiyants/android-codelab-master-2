@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.sap.codelab.location.LatLng
 
 /**
  * Represents a memo.
@@ -12,20 +13,27 @@ import androidx.room.PrimaryKey
 internal data class Memo(
         @ColumnInfo(name = "id")
         @PrimaryKey(autoGenerate = true)
-        var id: Long,
+        val id: Long,
         @ColumnInfo(name = "title")
-        var title: String,
+        val title: String,
         @ColumnInfo(name = "description")
-        var description: String,
+        val description: String,
         @ColumnInfo(name = "reminderDate")
-        var reminderDate: Long,
+        val reminderDate: Long,
         @ColumnInfo(name = "reminderLatitude")
-        var reminderLatitude: Long,
+        val reminderLatitude: Long,
         @ColumnInfo(name = "reminderLongitude")
-        var reminderLongitude: Long,
+        val reminderLongitude: Long,
         @ColumnInfo(name = "isDone")
-        var isDone: Boolean = false
+        val isDone: Boolean = false
 ) {
     @get:Ignore
     val hasLocationReminder: Boolean get() = reminderLatitude != 0L || reminderLongitude != 0L
+
+    // Coordinates are stored as Long via Double.toBits(); 0L is the sentinel for "no location set"
+    @get:Ignore
+    val reminderLocation: LatLng?
+        get() = if (hasLocationReminder)
+            LatLng(Double.fromBits(reminderLatitude), Double.fromBits(reminderLongitude))
+        else null
 }

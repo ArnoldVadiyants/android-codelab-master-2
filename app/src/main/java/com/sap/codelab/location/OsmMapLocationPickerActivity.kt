@@ -123,18 +123,16 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
             showLocationDisabledDialog()
             return
         }
-        val current = myLocationOverlay.myLocation
-        if (current != null) {
-            centerImmediately(current)
-        } else {
-            // Location not yet available — runOnFirstFix fires on a background thread once a fix
-            // arrives, so we must hop back to the UI thread before touching any views
-            myLocationOverlay.runOnFirstFix {
-                runOnUiThread {
-                    myLocationOverlay.myLocation?.let { centerImmediately(it) }
-                }
+        centerOnLocationWhenAvailable()
+    }
+
+    // Centers immediately if location is already known; otherwise waits for the first GPS fix.
+    // runOnFirstFix fires on a background thread, so we must hop back to the UI thread.
+    private fun centerOnLocationWhenAvailable() {
+        myLocationOverlay.myLocation?.let { centerImmediately(it) }
+            ?: myLocationOverlay.runOnFirstFix {
+                runOnUiThread { myLocationOverlay.myLocation?.let { centerImmediately(it) } }
             }
-        }
     }
 
     private fun centerImmediately(point: GeoPoint) {
@@ -209,13 +207,7 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
         ) {
             if (myLocationOverlay.enableMyLocation()) {
                 pendingLocationCenter = false
-                myLocationOverlay.myLocation?.let {
-                    centerImmediately(it)
-                } ?: myLocationOverlay.runOnFirstFix {
-                    runOnUiThread {
-                        myLocationOverlay.myLocation?.let { centerImmediately(it) }
-                    }
-                }
+                centerOnLocationWhenAvailable()
             }
         }
     }
@@ -243,17 +235,19 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
             true
         }
         R.id.action_confirm_location -> {
-            val point = selectedPoint
-            if (point != null) {
-                val result = Intent().apply {
-                    putExtra(EXTRA_LATITUDE, point.latitude)
-                    putExtra(EXTRA_LONGITUDE, point.longitude)
-                }
-                setResult(RESULT_OK, result)
-                finish()
-            }
+            confirmSelection()
             true
         }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    private fun confirmSelection() {
+        val point = selectedPoint ?: return
+        val result = Intent().apply {
+            putExtra(EXTRA_LATITUDE, point.latitude)
+            putExtra(EXTRA_LONGITUDE, point.longitude)
+        }
+        setResult(RESULT_OK, result)
+        finish()
     }
 }

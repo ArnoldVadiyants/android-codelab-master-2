@@ -1,6 +1,7 @@
 package com.sap.codelab.notification
 
 import android.Manifest
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -35,52 +36,46 @@ internal class AndroidMemoNotificationManager(private val context: Context) :
 
     override fun showLocationReminder(memo: Memo) {
         Log.d("NotificationManager", "Showing location reminder for memo: $memo")
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+
+        val hasNotificationPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!hasNotificationPermission) {
             Log.d("NotificationManager", "Notification permission not granted")
             return
         }
+        val pendingIntent = createPendingIntent(memo)
+        val notification = buildNotification(memo, pendingIntent)
+        Log.d("NotificationManager", "Showing notification for memo: $memo")
+        NotificationManagerCompat.from(context).notify(memo.id.toInt(), notification)
+    }
 
+    // Use memo.id as the request code so each memo gets its own distinct PendingIntent
+    private fun createPendingIntent(memo: Memo): PendingIntent {
         val contentIntent = Intent(context, ViewMemo::class.java).apply {
             putExtra(KEY_MEMO_ID, memo.id)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
-        val pendingFlags =
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        // Use memo.id as the request code so each memo gets its own distinct PendingIntent;
-        // without this, all notifications would share one intent and deep-link to the wrong memo
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            memo.id.toInt(),
-            contentIntent,
-            pendingFlags
-        )
+        val pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        return PendingIntent.getActivity(context, memo.id.toInt(), contentIntent, pendingFlags)
+    }
 
+    private fun buildNotification(memo: Memo, pendingIntent: PendingIntent): Notification {
+        val description = memo.description.take(DESCRIPTION_MAX_LENGTH)
         val largeIcon = ContextCompat
             .getDrawable(context, R.drawable.ic_location_filled)
             ?.toBitmap()
-
-        Log.d("NotificationManager", "Showing notification for memo: $memo, largeIcon: $largeIcon")
-        val description = memo.description.take(DESCRIPTION_MAX_LENGTH)
-
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        return NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_location_on)
             .setLargeIcon(largeIcon)
             .setContentTitle(memo.title)
             .setContentText(description)
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(description)
-            )
+            .setStyle(NotificationCompat.BigTextStyle().bigText(description))
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()
-
-        NotificationManagerCompat.from(context).notify(memo.id.toInt(), notification)
     }
 
     private fun createNotificationChannel() {

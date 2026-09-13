@@ -26,11 +26,11 @@ internal class RestoreGeofencesWorker(
 
         memos.forEach { memo ->
             runCatching {
-                // Coordinates are stored as Long (Double.toBits) in the DB; convert back before use
+                val location = memo.reminderLocation ?: return@runCatching
                 AppDependencies.locationReminderManager.addReminder(
                     memoId = memo.id,
-                    latitude = Double.fromBits(memo.reminderLatitude),
-                    longitude = Double.fromBits(memo.reminderLongitude)
+                    latitude = location.latitude,
+                    longitude = location.longitude
                 )
             }
             // Individual failures are swallowed so one bad entry doesn't block the rest
