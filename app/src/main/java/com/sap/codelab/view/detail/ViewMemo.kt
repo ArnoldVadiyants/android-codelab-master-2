@@ -8,13 +8,11 @@ import androidx.lifecycle.lifecycleScope
 import com.sap.codelab.KEY_MEMO_ID
 import com.sap.codelab.R
 import com.sap.codelab.databinding.ActivityViewMemoBinding
+import com.sap.codelab.location.LatLng
+import com.sap.codelab.location.LocationMapView
 import com.sap.codelab.model.Memo
 import com.sap.codelab.utils.extensions.applyWindowInsets
 import kotlinx.coroutines.launch
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.overlay.Marker
 
 /**
  * Activity that allows a user to see the details of a memo.
@@ -22,10 +20,10 @@ import org.osmdroid.views.overlay.Marker
 internal class ViewMemo : AppCompatActivity() {
 
     private lateinit var binding: ActivityViewMemoBinding
+    private lateinit var mapView: LocationMapView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Configuration.getInstance().userAgentValue = packageName
         binding = ActivityViewMemoBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
@@ -39,6 +37,7 @@ internal class ViewMemo : AppCompatActivity() {
                 }
             }
         }
+        mapView = binding.contentCreateMemo.locationMapView as LocationMapView
         if (savedInstanceState == null) {
             val id = intent.getLongExtra(KEY_MEMO_ID, -1)
             model.loadMemo(id)
@@ -64,41 +63,28 @@ internal class ViewMemo : AppCompatActivity() {
 
                 locationEmptyContainer.visibility = View.GONE
                 locationSelectedContainer.visibility = View.VISIBLE
-                locationMapPreview.visibility = View.VISIBLE
+                locationMapView.visibility = View.VISIBLE
                 locationCoordinates.text = getString(R.string.location_coordinates, lat, lng)
 
                 changeLocationButton.visibility = View.GONE
                 clearLocationButton.visibility = View.GONE
 
-                locationMapPreview.apply {
-                    setTileSource(TileSourceFactory.MAPNIK)
-                    setMultiTouchControls(true)
-                    val point = GeoPoint(lat, lng)
-                    controller.setZoom(15.0)
-                    controller.setCenter(point)
-                    overlays.clear()
-                    val marker = Marker(this)
-                    marker.position = point
-                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    marker.infoWindow = null
-                    overlays.add(marker)
-                    invalidate()
-                }
+                mapView.showLocation(LatLng(lat, lng))
             } else {
                 locationEmptyContainer.visibility = View.GONE
                 locationSelectedContainer.visibility = View.GONE
-                locationMapPreview.visibility = View.GONE
+                locationMapView.visibility = View.GONE
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        binding.contentCreateMemo.locationMapPreview.onResume()
+        mapView.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        binding.contentCreateMemo.locationMapPreview.onPause()
+        mapView.onPause()
     }
 }

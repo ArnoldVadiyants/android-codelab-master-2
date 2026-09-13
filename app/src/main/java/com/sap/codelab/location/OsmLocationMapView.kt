@@ -1,0 +1,36 @@
+package com.sap.codelab.location
+
+import android.content.Context
+import android.util.AttributeSet
+import org.osmdroid.config.Configuration
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+
+class OsmLocationMapView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null
+) : MapView(context, attrs), LocationMapView {
+
+    init {
+        Configuration.getInstance().userAgentValue = context.packageName
+        setTileSource(TileSourceFactory.MAPNIK)
+        setMultiTouchControls(true)
+    }
+
+    override fun showLocation(latLng: LatLng) {
+        val point = GeoPoint(latLng.latitude, latLng.longitude)
+        controller.setZoom(15.0)
+        controller.setCenter(point)
+        overlays.clear()
+        Marker(this).also { marker ->
+            marker.position = point
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            marker.infoWindow = null
+            overlays.add(marker)
+        }
+        invalidate()
+    }
+
+}

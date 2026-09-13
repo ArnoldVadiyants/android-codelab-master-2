@@ -18,7 +18,7 @@
         android:layout_height="0dp"
         android:padding="@dimen/padding_activity"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/location_map_preview"
+        app:layout_constraintEnd_toStartOf="@id/location_map_view"
         app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toStartOf="parent"
@@ -211,7 +211,7 @@
         VISIBLE when location selected → takes 50% of screen width.
     -->
     <org.osmdroid.views.MapView
-        android:id="@+id/location_map_preview"
+        android:id="@+id/location_map_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"

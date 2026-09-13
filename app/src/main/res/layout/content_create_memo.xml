@@ -162,8 +162,8 @@
             app:barrierDirection="bottom"
             app:constraint_referenced_ids="ic_location_selected,location_coordinates" />
 
-        <org.osmdroid.views.MapView
-            android:id="@+id/location_map_preview"
+        <com.sap.codelab.location.OsmLocationMapView
+            android:id="@+id/location_map_view"
             android:layout_width="0dp"
             android:layout_height="200dp"
             android:layout_marginTop="12dp"
@@ -180,7 +180,7 @@
             android:layout_marginEnd="4dp"
             android:text="@string/change_location"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/location_map_preview" />
+            app:layout_constraintTop_toBottomOf="@id/location_map_view" />
 
 
         <com.google.android.material.button.MaterialButton
@@ -192,7 +192,7 @@
             android:layout_marginTop="8dp"
             android:text="@string/clear_location"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/location_map_preview" />
+            app:layout_constraintTop_toBottomOf="@id/location_map_view" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

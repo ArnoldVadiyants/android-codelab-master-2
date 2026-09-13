@@ -19,13 +19,10 @@ import com.sap.codelab.R
 import com.sap.codelab.databinding.ActivityCreateMemoBinding
 import com.sap.codelab.location.IMapLocationPicker
 import com.sap.codelab.location.LatLng
+import com.sap.codelab.location.LocationMapView
 import com.sap.codelab.location.OsmMapLocationPicker
 import com.sap.codelab.utils.extensions.applyWindowInsets
 import com.sap.codelab.utils.extensions.empty
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.overlay.Marker
 
 /**
  * Activity that allows a user to create a new Memo.
@@ -34,6 +31,7 @@ internal class CreateMemo : AppCompatActivity() {
 
     private lateinit var binding: ActivityCreateMemoBinding
     private lateinit var model: CreateMemoViewModel
+    private lateinit var mapView: LocationMapView
     private val locationPicker: IMapLocationPicker = OsmMapLocationPicker()
 
     private val notificationPermissionLauncher = registerForActivityResult(RequestPermission()) {
@@ -58,24 +56,16 @@ internal class CreateMemo : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Configuration.getInstance().userAgentValue = packageName
         binding = ActivityCreateMemoBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         model = ViewModelProvider(this)[CreateMemoViewModel::class.java]
         applyWindowInsets(binding.root, binding.appBar)
 
-        initPreviewMap()
+        mapView = binding.contentCreateMemo.locationMapView as LocationMapView
         setupLocationButtons()
 
         model.location?.let { showLocationSelected(it) } ?: showLocationEmpty()
-    }
-
-    private fun initPreviewMap() {
-        binding.contentCreateMemo.locationMapPreview.apply {
-            setTileSource(TileSourceFactory.MAPNIK)
-            setMultiTouchControls(true)
-        }
     }
 
     private fun setupLocationButtons() {
@@ -97,40 +87,28 @@ internal class CreateMemo : AppCompatActivity() {
         binding.contentCreateMemo.run {
             locationEmptyContainer.visibility = View.GONE
             locationSelectedContainer.visibility = View.VISIBLE
-            locationMapPreview.visibility = View.VISIBLE
+            locationMapView.visibility = View.VISIBLE
             locationCoordinates.text = getString(R.string.location_coordinates, latLng.latitude, latLng.longitude)
-
-            val point = GeoPoint(latLng.latitude, latLng.longitude)
-            locationMapPreview.apply {
-                controller.setZoom(15.0)
-                controller.setCenter(point)
-                overlays.clear()
-                val marker = Marker(this)
-                marker.position = point
-                marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                marker.infoWindow = null
-                overlays.add(marker)
-                invalidate()
-            }
         }
+        mapView.showLocation(latLng)
     }
 
     private fun showLocationEmpty() {
         binding.contentCreateMemo.run {
             locationSelectedContainer.visibility = View.GONE
-            locationMapPreview.visibility = View.GONE
+            locationMapView.visibility = View.GONE
             locationEmptyContainer.visibility = View.VISIBLE
         }
     }
 
     override fun onResume() {
         super.onResume()
-        binding.contentCreateMemo.locationMapPreview.onResume()
+        mapView.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        binding.contentCreateMemo.locationMapPreview.onPause()
+        mapView.onPause()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -2,9 +2,7 @@ package com.sap.codelab.location
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -21,16 +19,7 @@ internal class GoogleLocationReminderManager(context: Context) : LocationReminde
 
     private val appContext = context.applicationContext
     private val geofencingClient = LocationServices.getGeofencingClient(appContext)
-
-    private val geofencePendingIntent: PendingIntent by lazy {
-        val intent = Intent(appContext, GeofenceBroadcastReceiver::class.java)
-        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
-        PendingIntent.getBroadcast(appContext, REQUEST_CODE, intent, flags)
-    }
+    private val geofencePendingIntent by lazy { GeofenceBroadcastReceiver.createPendingIntent(appContext) }
 
     @SuppressLint("MissingPermission")
     override suspend fun addReminder(memoId: Long, latitude: Double, longitude: Double) {
@@ -78,7 +67,6 @@ internal class GoogleLocationReminderManager(context: Context) : LocationReminde
     }
 
     companion object {
-        private const val REQUEST_CODE = 1001
         private const val GEOFENCE_RADIUS_METERS = 200f
     }
 }
