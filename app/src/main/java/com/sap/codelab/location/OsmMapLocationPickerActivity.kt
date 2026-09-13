@@ -31,6 +31,12 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
     companion object {
         private const val DEFAULT_ZOOM = 5.0
         private const val LOCATION_ZOOM = 20.0
+        private const val KEY_SELECTED_LAT = "selected_lat"
+        private const val KEY_SELECTED_LNG = "selected_lng"
+        private const val KEY_MAP_CENTER_LAT = "map_center_lat"
+        private const val KEY_MAP_CENTER_LNG = "map_center_lng"
+        private const val KEY_MAP_ZOOM = "map_zoom"
+        private const val KEY_PENDING_LOCATION_CENTER = "pending_location_center"
     }
 
     private lateinit var binding: ActivityOsmMapLocationPickerBinding
@@ -60,7 +66,11 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
         applyWindowInsets(binding.root, binding.appBar)
 
         setupMap()
-        restoreInitialLocationOrCenter()
+        if (savedInstanceState != null) {
+            restoreMapState(savedInstanceState)
+        } else {
+            restoreInitialLocationOrCenter()
+        }
 
         binding.myLocationFab.setOnClickListener { requestLocationOrCenter() }
     }
@@ -144,7 +154,7 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun placeMarker(point: GeoPoint) {
+    private fun placeMarker(point: GeoPoint, center: Boolean = true) {
         selectedPoint = point
         // Remove the previous marker before adding a new one so only one pin is visible at a time
         marker?.let { binding.mapView.overlays.remove(it) }
@@ -154,10 +164,39 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
             title = getString(R.string.selected_location)
         }
         binding.mapView.overlays.add(marker)
-        centerImmediately(point)
+        if (center) centerImmediately(point)
         binding.mapView.invalidate()
         // Trigger onPrepareOptionsMenu so the confirm action becomes enabled now that a point is set
         invalidateOptionsMenu()
+    }
+
+    private fun restoreMapState(state: Bundle) {
+        val zoom = state.getDouble(KEY_MAP_ZOOM, DEFAULT_ZOOM)
+        val centerLat = state.getDouble(KEY_MAP_CENTER_LAT, 0.0)
+        val centerLng = state.getDouble(KEY_MAP_CENTER_LNG, 0.0)
+        binding.mapView.controller.setZoom(zoom)
+        binding.mapView.controller.setCenter(GeoPoint(centerLat, centerLng))
+
+        val lat = state.getDouble(KEY_SELECTED_LAT, Double.NaN)
+        val lng = state.getDouble(KEY_SELECTED_LNG, Double.NaN)
+        if (!lat.isNaN() && !lng.isNaN()) {
+            placeMarker(GeoPoint(lat, lng), center = false)
+        }
+
+        pendingLocationCenter = state.getBoolean(KEY_PENDING_LOCATION_CENTER, false)
+        myLocationOverlay.enableMyLocation()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        selectedPoint?.let {
+            outState.putDouble(KEY_SELECTED_LAT, it.latitude)
+            outState.putDouble(KEY_SELECTED_LNG, it.longitude)
+        }
+        outState.putDouble(KEY_MAP_CENTER_LAT, binding.mapView.mapCenter.latitude)
+        outState.putDouble(KEY_MAP_CENTER_LNG, binding.mapView.mapCenter.longitude)
+        outState.putDouble(KEY_MAP_ZOOM, binding.mapView.zoomLevelDouble)
+        outState.putBoolean(KEY_PENDING_LOCATION_CENTER, pendingLocationCenter)
     }
 
     override fun onResume() {

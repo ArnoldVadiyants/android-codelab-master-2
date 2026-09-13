@@ -27,6 +27,7 @@ internal class ViewMemo : AppCompatActivity() {
         binding = ActivityViewMemoBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        mapView = binding.contentCreateMemo.locationMapView as LocationMapView
         applyWindowInsets(binding.root, binding.appBar)
         // Initialize views with the passed memo id
         val model = ViewModelProvider(this)[ViewMemoViewModel::class.java]
@@ -37,7 +38,6 @@ internal class ViewMemo : AppCompatActivity() {
                 }
             }
         }
-        mapView = binding.contentCreateMemo.locationMapView as LocationMapView
         if (savedInstanceState == null) {
             val id = intent.getLongExtra(KEY_MEMO_ID, -1)
             model.loadMemo(id)

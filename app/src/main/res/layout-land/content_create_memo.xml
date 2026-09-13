@@ -210,7 +210,7 @@
         GONE when no location → left column expands to full width via chain weight.
         VISIBLE when location selected → takes 50% of screen width.
     -->
-    <org.osmdroid.views.MapView
+    <com.sap.codelab.location.OsmLocationMapView
         android:id="@+id/location_map_view"
         android:layout_width="0dp"
         android:layout_height="0dp"

@@ -60,10 +60,10 @@ internal class CreateMemo : AppCompatActivity() {
         binding = ActivityCreateMemoBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        mapView = binding.contentCreateMemo.locationMapView as LocationMapView
         model = ViewModelProvider(this)[CreateMemoViewModel::class.java]
         applyWindowInsets(binding.root, binding.appBar)
 
-        mapView = binding.contentCreateMemo.locationMapView as LocationMapView
         setupLocationButtons()
 
         model.location?.let { showLocationSelected(it) } ?: showLocationEmpty()
