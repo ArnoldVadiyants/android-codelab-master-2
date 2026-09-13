@@ -47,16 +47,20 @@ internal class CreateMemoViewModel : ViewModel() {
             description = description,
             id = 0,
             reminderDate = 0,
+            // Coordinates are persisted as the raw bit-pattern of the Double so they fit in a
+            // single Long column; 0L is the sentinel for "no location set"
             reminderLatitude = selectedLocation?.latitude?.toBits() ?: 0L,
             reminderLongitude = selectedLocation?.longitude?.toBits() ?: 0L,
             isDone = false
         )
     }
 
+    /** Sets the location reminder for the memo being created. */
     fun updateLocation(latLng: LatLng) {
         selectedLocation = latLng
     }
 
+    /** Removes any previously selected location so the memo is saved without a reminder. */
     fun clearLocation() {
         selectedLocation = null
     }

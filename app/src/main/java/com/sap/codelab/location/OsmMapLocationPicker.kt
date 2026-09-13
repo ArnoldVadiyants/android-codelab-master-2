@@ -5,6 +5,12 @@ import android.content.Intent
 import com.sap.codelab.EXTRA_LATITUDE
 import com.sap.codelab.EXTRA_LONGITUDE
 
+/**
+ * [IMapLocationPicker] implementation that launches [OsmMapLocationPickerActivity].
+ *
+ * Passes an optional initial location via intent extras and reads the selected
+ * coordinates back from the result intent.
+ */
 internal class OsmMapLocationPicker : IMapLocationPicker {
 
     override fun createIntent(context: Context, initialLocation: LatLng?): Intent =

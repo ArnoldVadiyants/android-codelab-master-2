@@ -8,6 +8,13 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.sap.codelab.worker.RestoreGeofencesWorker
 
+/**
+ * Re-registers active geofences after the device reboots.
+ *
+ * GMS geofences do not survive a device reboot. This receiver listens for
+ * [android.content.Intent.ACTION_BOOT_COMPLETED] and enqueues a
+ * [com.sap.codelab.worker.RestoreGeofencesWorker] to restore all active location reminders.
+ */
 internal class BootCompletedReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {

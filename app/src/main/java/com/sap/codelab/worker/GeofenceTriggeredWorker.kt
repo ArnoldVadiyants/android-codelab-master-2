@@ -8,6 +8,14 @@ import com.sap.codelab.AppDependencies
 import com.sap.codelab.KEY_MEMO_ID
 import com.sap.codelab.repository.Repository
 
+/**
+ * Handles a geofence ENTER event for a single memo.
+ *
+ * Expects [KEY_MEMO_ID][com.sap.codelab.KEY_MEMO_ID] in the input data. The worker:
+ * 1. Loads the memo from the repository.
+ * 2. Shows a location-reminder notification.
+ * 3. Marks the memo as done and removes its geofence.
+ */
 internal class GeofenceTriggeredWorker(
     appContext: Context,
     workerParams: WorkerParameters

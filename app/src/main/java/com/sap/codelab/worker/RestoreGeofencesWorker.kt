@@ -7,6 +7,12 @@ import androidx.work.WorkerParameters
 import com.sap.codelab.AppDependencies
 import com.sap.codelab.repository.Repository
 
+/**
+ * Re-registers geofences for all active location-reminder memos after a device reboot.
+ *
+ * Enqueued by [com.sap.codelab.receiver.BootCompletedReceiver] on
+ * [android.content.Intent.ACTION_BOOT_COMPLETED].
+ */
 internal class RestoreGeofencesWorker(
     appContext: Context,
     workerParams: WorkerParameters
@@ -20,6 +26,7 @@ internal class RestoreGeofencesWorker(
 
         memos.forEach { memo ->
             runCatching {
+                // Coordinates are stored as Long (Double.toBits) in the DB; convert back before use
                 AppDependencies.locationReminderManager.addReminder(
                     memoId = memo.id,
                     latitude = Double.fromBits(memo.reminderLatitude),

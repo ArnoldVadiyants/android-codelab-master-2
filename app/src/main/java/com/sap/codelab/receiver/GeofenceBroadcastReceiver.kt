@@ -14,6 +14,9 @@ import com.sap.codelab.AppDependencies
 import com.sap.codelab.KEY_MEMO_ID
 import com.sap.codelab.worker.GeofenceTriggeredWorker
 
+/**
+ * Receives geofence transition broadcasts from GMS and dispatches background work.
+ */
 internal class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
     companion object {
@@ -24,6 +27,8 @@ internal class GeofenceBroadcastReceiver : BroadcastReceiver() {
             val intent = Intent(context.applicationContext, GeofenceBroadcastReceiver::class.java).apply {
                 action = ACTION_GEOFENCE_EVENT
             }
+            // FLAG_MUTABLE is required on Android 12+ because GMS mutates the PendingIntent to
+            // attach the geofencing extras before broadcasting it
             val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
             } else {

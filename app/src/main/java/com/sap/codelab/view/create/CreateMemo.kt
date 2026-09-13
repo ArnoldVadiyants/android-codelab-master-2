@@ -39,8 +39,9 @@ internal class CreateMemo : AppCompatActivity() {
     }
 
     private val backgroundLocationLauncher = registerForActivityResult(RequestPermission()) {
-        // Result ignored
-        // Request next notification permission
+        // Android requires background location and POST_NOTIFICATIONS to be requested separately
+        // and in sequence. Background location is requested first; regardless of the outcome
+        // we proceed to ask for notification permission next.
         requestNotificationPermission()
     }
 

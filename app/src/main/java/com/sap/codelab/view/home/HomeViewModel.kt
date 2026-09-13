@@ -39,6 +39,9 @@ internal class HomeViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Re-runs the last load (all or open) to pick up any external changes.
+     */
     fun refreshMemos() {
         if (isShowAll) {
             loadAllMemos()

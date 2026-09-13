@@ -8,6 +8,9 @@ import com.sap.codelab.location.LocationReminderManager
 import com.sap.codelab.notification.AndroidMemoNotificationManager
 import com.sap.codelab.notification.MemoNotificationManager
 
+/**
+ * Application-wide dependency container
+ */
 internal object AppDependencies {
 
     val geofenceEventParser: IGeofenceEventParser = GmsGeofenceEventParser()
@@ -18,6 +21,9 @@ internal object AppDependencies {
     lateinit var notificationManager: MemoNotificationManager
         private set
 
+    /**
+     * Creates and wires up all dependencies.
+     */
     fun initialize(context: Context) {
         locationReminderManager = GoogleLocationReminderManager(context)
         notificationManager = AndroidMemoNotificationManager(context)

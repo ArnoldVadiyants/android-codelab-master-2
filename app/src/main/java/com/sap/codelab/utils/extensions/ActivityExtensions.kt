@@ -7,6 +7,12 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 
+/**
+ * Enables edge-to-edge display and applies system-bar insets to [root] and [appBar].
+ *
+ * @param root   the full-screen root view of the layout.
+ * @param appBar the toolbar or app-bar view positioned at the top of the screen.
+ */
 internal fun AppCompatActivity.applyWindowInsets(root: View, appBar: View) {
     WindowCompat.setDecorFitsSystemWindows(window, false)
     ViewCompat.setOnApplyWindowInsetsListener(root) { view, windowInsets ->

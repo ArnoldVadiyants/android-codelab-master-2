@@ -109,6 +109,7 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
 
     private fun enableAndCenter() {
         if (!myLocationOverlay.enableMyLocation()) {
+            // enableMyLocation() returns false when the device's location provider is off
             showLocationDisabledDialog()
             return
         }
@@ -116,6 +117,8 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
         if (current != null) {
             centerImmediately(current)
         } else {
+            // Location not yet available — runOnFirstFix fires on a background thread once a fix
+            // arrives, so we must hop back to the UI thread before touching any views
             myLocationOverlay.runOnFirstFix {
                 runOnUiThread {
                     myLocationOverlay.myLocation?.let { centerImmediately(it) }
@@ -143,9 +146,9 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
 
     private fun placeMarker(point: GeoPoint) {
         selectedPoint = point
+        // Remove the previous marker before adding a new one so only one pin is visible at a time
         marker?.let { binding.mapView.overlays.remove(it) }
         marker = Marker(binding.mapView).apply {
-
             position = point
             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
             title = getString(R.string.selected_location)
@@ -153,6 +156,7 @@ internal class OsmMapLocationPickerActivity : AppCompatActivity() {
         binding.mapView.overlays.add(marker)
         centerImmediately(point)
         binding.mapView.invalidate()
+        // Trigger onPrepareOptionsMenu so the confirm action becomes enabled now that a point is set
         invalidateOptionsMenu()
     }
 

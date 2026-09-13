@@ -21,6 +21,11 @@ import com.sap.codelab.view.detail.ViewMemo
 private const val CHANNEL_ID = "location_reminders"
 private const val DESCRIPTION_MAX_LENGTH = 140
 
+/**
+ * [MemoNotificationManager] implementation
+ *
+ * @param context app context
+ */
 internal class AndroidMemoNotificationManager(private val context: Context) :
     MemoNotificationManager {
 
@@ -46,6 +51,8 @@ internal class AndroidMemoNotificationManager(private val context: Context) :
         }
         val pendingFlags =
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        // Use memo.id as the request code so each memo gets its own distinct PendingIntent;
+        // without this, all notifications would share one intent and deep-link to the wrong memo
         val pendingIntent = PendingIntent.getActivity(
             context,
             memo.id.toInt(),

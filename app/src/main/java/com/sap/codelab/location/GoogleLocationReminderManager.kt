@@ -15,6 +15,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+/**
+ * [LocationReminderManager] implementation backed by Geofencing API.
+ *
+ * @param context any context; the application context is retained internally.
+ */
 internal class GoogleLocationReminderManager(context: Context) : LocationReminderManager {
 
     private val appContext = context.applicationContext
@@ -23,11 +28,13 @@ internal class GoogleLocationReminderManager(context: Context) : LocationReminde
 
     @SuppressLint("MissingPermission")
     override suspend fun addReminder(memoId: Long, latitude: Double, longitude: Double) {
-        Log.d("ARNOLD", "GoogleLocationReminderManager memoId: $memoId latitude: $latitude longitude: $longitude")
+        Log.d("LocationReminder", "addReminder memoId: $memoId latitude: $latitude longitude: $longitude")
 
+        // ACCESS_FINE_LOCATION is always required for geofencing
         if (ContextCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
         ) return
+        // On Android 10+ geofences only fire in the background with ACCESS_BACKGROUND_LOCATION
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
             ContextCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
             != PackageManager.PERMISSION_GRANTED
@@ -36,24 +43,26 @@ internal class GoogleLocationReminderManager(context: Context) : LocationReminde
         runCatching { removeReminder(memoId) }
 
         val geofence = Geofence.Builder()
-            .setRequestId(memoId.toString())
+            .setRequestId(memoId.toString()) // request ID is the memo ID so we can map it back on trigger
             .setCircularRegion(latitude, longitude, GEOFENCE_RADIUS_METERS)
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .build()
 
         val request = GeofencingRequest.Builder()
-            .setInitialTrigger(0) // no immediate trigger on registration
+            .setInitialTrigger(0) // no immediate trigger on registration — only fire when actually entering
             .addGeofence(geofence)
             .build()
 
+        // The GMS geofencing API is callback-based; suspendCancellableCoroutine bridges it into
+        // a suspend function so callers can use it in a coroutine without nested callbacks
         suspendCancellableCoroutine { continuation ->
             geofencingClient.addGeofences(request, geofencePendingIntent)
                 .addOnSuccessListener {
-                    Log.d("ARNOLD", "Geofence added for memoId: $memoId latitude: $latitude longitude: $longitude")
+                    Log.d("LocationReminder", "Geofence added for memoId: $memoId latitude: $latitude longitude: $longitude")
                     continuation.resume(Unit) }
                 .addOnFailureListener {
-                    Log.d("ARNOLD", "Failed to add geofence for memoId: $memoId latitude: $latitude longitude: $longitude")
+                    Log.e("LocationReminder", "Failed to add geofence for memoId: $memoId latitude: $latitude longitude: $longitude")
                     continuation.resumeWithException(it) }
         }
     }

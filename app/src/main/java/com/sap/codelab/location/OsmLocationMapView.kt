@@ -8,6 +8,12 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
+/**
+ * [LocationMapView] implementation backed by OSMDroid.
+ *
+ * Can be placed directly in XML layouts. Initialises OSMDroid's user-agent from the
+ * application package name and uses the MAPNIK tile source.
+ */
 class OsmLocationMapView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
@@ -32,5 +38,4 @@ class OsmLocationMapView @JvmOverloads constructor(
         }
         invalidate()
     }
-
 }
