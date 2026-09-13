@@ -33,7 +33,7 @@ internal interface MemoDao {
     /**
      * @return all memos that have a location and have not yet fired their location reminder.
      */
-    @Query("SELECT * FROM memo WHERE isDone = 0 AND reminderLatitude != 0 AND reminderLongitude != 0")
+    @Query("SELECT * FROM memo WHERE isDone = 0 AND (reminderLatitude != 0 OR reminderLongitude != 0)")
     fun getActiveLocationReminders(): List<Memo>
 
     /**

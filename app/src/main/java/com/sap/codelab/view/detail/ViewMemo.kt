@@ -56,8 +56,7 @@ internal class ViewMemo : AppCompatActivity() {
             memoDescription.setText(memo.description)
             memoDescription.isEnabled = false
 
-            val hasLocation = memo.reminderLatitude != 0L && memo.reminderLongitude != 0L
-            if (hasLocation) {
+            if (memo.hasLocationReminder) {
                 val lat = Double.fromBits(memo.reminderLatitude)
                 val lng = Double.fromBits(memo.reminderLongitude)
 

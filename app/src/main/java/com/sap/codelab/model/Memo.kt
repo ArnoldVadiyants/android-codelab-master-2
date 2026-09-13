@@ -2,6 +2,7 @@ package com.sap.codelab.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 /**
@@ -24,4 +25,7 @@ internal data class Memo(
         var reminderLongitude: Long,
         @ColumnInfo(name = "isDone")
         var isDone: Boolean = false
-)
+) {
+    @get:Ignore
+    val hasLocationReminder: Boolean get() = reminderLatitude != 0L || reminderLongitude != 0L
+}

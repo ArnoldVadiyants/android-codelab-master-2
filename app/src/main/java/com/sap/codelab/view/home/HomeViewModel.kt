@@ -2,6 +2,7 @@ package com.sap.codelab.view.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sap.codelab.AppDependencies
 import com.sap.codelab.model.Memo
 import com.sap.codelab.repository.Repository
 import com.sap.codelab.utils.coroutines.ScopeProvider
@@ -61,6 +62,9 @@ internal class HomeViewModel : ViewModel() {
             // We'll only forward the update if the memo has been checked, since we don't offer to uncheck memos right now
             if (isChecked) {
                 Repository.saveMemo(memo.copy(isDone = true))
+                if (memo.hasLocationReminder) {
+                    AppDependencies.locationReminderManager.removeReminder(memo.id)
+                }
             }
         }
     }

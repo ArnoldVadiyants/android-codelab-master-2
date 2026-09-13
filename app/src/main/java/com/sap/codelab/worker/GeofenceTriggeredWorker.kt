@@ -31,8 +31,7 @@ internal class GeofenceTriggeredWorker(
 
         if (memo.isDone) return Result.success() // Already processed or marked done by user
 
-        // Location was cleared after this event was enqueued
-        if (memo.reminderLatitude == 0L || memo.reminderLongitude == 0L) return Result.success()
+        if (!memo.hasLocationReminder) return Result.success()
 
         AppDependencies.notificationManager.showLocationReminder(memo)
 
