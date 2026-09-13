@@ -35,6 +35,8 @@ internal class GeofenceTriggeredWorker(
 
         AppDependencies.notificationManager.showLocationReminder(memo)
 
+        // Failures here are swallowed so the worker always returns success and is never retried.
+        // A retry would re-show the notification (already sent above), spamming the user.
         runCatching { Repository.saveMemo(memo.copy(isDone = true)) }
         runCatching { AppDependencies.locationReminderManager.removeReminder(memoId) }
 
