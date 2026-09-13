@@ -14,7 +14,7 @@ internal class GeofenceTriggeredWorker(
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        Log.d("ARNOLD", "Geofence triggered worker")
+        Log.d("GeofenceWorker", "Geofence triggered worker")
         val memoId = inputData.getLong(KEY_MEMO_ID, -1L)
         if (memoId == -1L) return Result.failure()
 

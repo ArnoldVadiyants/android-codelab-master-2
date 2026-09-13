@@ -34,10 +34,10 @@ internal class GeofenceBroadcastReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d("ARNOLD", "Geofence broadcast received for ${intent.action}")
+        Log.d("GeofenceReceiver", "Geofence broadcast received for ${intent.action}")
         when (intent.action) {
             ACTION_GEOFENCE_EVENT -> handleGeofenceEvent(context, intent)
-            else -> Log.w("ARNOLD", "Unknown action received: ${intent.action}")
+            else -> Log.w("GeofenceReceiver", "Unknown action received: ${intent.action}")
         }
     }
 
@@ -46,7 +46,7 @@ internal class GeofenceBroadcastReceiver : BroadcastReceiver() {
         if (memoIds.isEmpty()) return
 
         val workManager = WorkManager.getInstance(context)
-        Log.d("ARNOLD", "Triggered memo ids: $memoIds")
+        Log.d("GeofenceReceiver", "Triggered memo ids: $memoIds")
         memoIds.forEach { memoId ->
             val request = OneTimeWorkRequestBuilder<GeofenceTriggeredWorker>()
                 .setInputData(workDataOf(KEY_MEMO_ID to memoId))

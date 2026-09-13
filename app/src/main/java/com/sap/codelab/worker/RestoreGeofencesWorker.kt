@@ -13,7 +13,7 @@ internal class RestoreGeofencesWorker(
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        Log.d("ARNOLD", "RestoreGeofencesWorker started")
+        Log.d("RestoreGeofences", "RestoreGeofencesWorker started")
 
         val memos = runCatching { Repository.getActiveLocationReminders() }
             .getOrElse { return Result.retry() }

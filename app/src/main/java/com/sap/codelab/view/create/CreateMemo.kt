@@ -172,7 +172,7 @@ internal class CreateMemo : AppCompatActivity() {
 
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Log.d("ARNOLD", "Requesting notification permission")
+            Log.d("CreateMemo", "Requesting notification permission")
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }

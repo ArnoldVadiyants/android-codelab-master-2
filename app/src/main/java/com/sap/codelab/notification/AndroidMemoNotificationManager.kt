@@ -29,14 +29,14 @@ internal class AndroidMemoNotificationManager(private val context: Context) :
     }
 
     override fun showLocationReminder(memo: Memo) {
-        Log.d("ARNOLD", "Showing location reminder for memo: $memo")
+        Log.d("NotificationManager", "Showing location reminder for memo: $memo")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Log.d("ARNOLD", "Notification permission not granted")
+            Log.d("NotificationManager", "Notification permission not granted")
             return
         }
 
@@ -57,7 +57,7 @@ internal class AndroidMemoNotificationManager(private val context: Context) :
             .getDrawable(context, R.drawable.ic_location_filled)
             ?.toBitmap()
 
-        Log.d("ARNOLD", "Showing notification for memo: $memo, largeIcon: $largeIcon")
+        Log.d("NotificationManager", "Showing notification for memo: $memo, largeIcon: $largeIcon")
         val description = memo.description.take(DESCRIPTION_MAX_LENGTH)
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
