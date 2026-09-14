@@ -10,14 +10,14 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:name=".repository.App"
+        android:name=".App"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.sap.codelab.view.home.Home"
+            android:name="com.sap.codelab.home.Home"
             android:exported="true"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -27,26 +27,26 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.sap.codelab.view.create.CreateMemo"
+            android:name="com.sap.codelab.create.CreateMemo"
             android:exported="false"
             android:label="@string/new_memo"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.sap.codelab.view.detail.ViewMemo"
+            android:name="com.sap.codelab.detail.ViewMemo"
             android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.sap.codelab.location.OsmMapLocationPickerActivity"
+            android:name="com.sap.codelab.core.location.OsmMapLocationPickerActivity"
             android:exported="false"
             android:label="@string/pick_location"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <receiver
-            android:name="com.sap.codelab.receiver.GeofenceBroadcastReceiver"
+            android:name="com.sap.codelab.core.receiver.LocationReminderBroadcastReceiver"
             android:exported="false" />
 
         <receiver
-            android:name="com.sap.codelab.receiver.GeofenceRestoreReceiver"
+            android:name="com.sap.codelab.core.receiver.LocationReminderRestoreReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

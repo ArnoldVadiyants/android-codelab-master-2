@@ -9,10 +9,12 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.sap.codelab.KEY_MEMO_ID
 import com.sap.codelab.R
-import com.sap.codelab.model.Memo
-import com.sap.codelab.repository.Repository
+import com.sap.codelab.core.model.Memo
+import com.sap.codelab.core.repository.Repository
+import com.sap.codelab.core.utils.KEY_MEMO_ID
+import com.sap.codelab.detail.ViewMemo
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.containsString
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,16 +27,18 @@ class ViewMemoTest {
     fun locationCoordinates_displayedForMemoWithLocation() {
         val lat = 52.52
         val lng = 13.40
-        val memoId = Repository.saveMemo(
-            Memo(
-                id = 0,
-                title = "Test Memo",
-                description = "Some description",
-                reminderDate = 0L,
-                reminderLatitude = lat.toBits(),
-                reminderLongitude = lng.toBits()
+        val memoId = runBlocking {
+            Repository.saveMemo(
+                Memo(
+                    id = 0,
+                    title = "Test Memo",
+                    description = "Some description",
+                    reminderDate = 0L,
+                    reminderLatitude = lat,
+                    reminderLongitude = lng
+                )
             )
-        )
+        }
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), ViewMemo::class.java)
             .putExtra(KEY_MEMO_ID, memoId)

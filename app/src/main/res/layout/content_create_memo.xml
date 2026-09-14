@@ -162,7 +162,7 @@
             app:barrierDirection="bottom"
             app:constraint_referenced_ids="ic_location_selected,location_coordinates" />
 
-        <com.sap.codelab.location.OsmLocationMapView
+        <com.sap.codelab.core.location.OsmLocationMapView
             android:id="@+id/location_map_view"
             android:layout_width="0dp"
             android:layout_height="200dp"

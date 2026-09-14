@@ -15,10 +15,11 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-import com.sap.codelab.EXTRA_LATITUDE
-import com.sap.codelab.EXTRA_LONGITUDE
 import com.sap.codelab.R
-import com.sap.codelab.location.OsmMapLocationPickerActivity
+import com.sap.codelab.core.location.OsmMapLocationPickerActivity
+import com.sap.codelab.core.utils.EXTRA_LATITUDE
+import com.sap.codelab.core.utils.EXTRA_LONGITUDE
+import com.sap.codelab.create.CreateMemo
 import org.hamcrest.Matchers.containsString
 import org.junit.After
 import org.junit.Before

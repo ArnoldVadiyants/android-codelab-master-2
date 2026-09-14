@@ -1,19 +1,19 @@
 package com.sap.codelab
 
 import android.content.Context
-import com.sap.codelab.location.GmsGeofenceEventParser
-import com.sap.codelab.location.GoogleLocationReminderManager
-import com.sap.codelab.location.IGeofenceEventParser
-import com.sap.codelab.location.LocationReminderManager
-import com.sap.codelab.notification.AndroidMemoNotificationManager
-import com.sap.codelab.notification.MemoNotificationManager
+import com.sap.codelab.core.location.GmsGeofenceEventParser
+import com.sap.codelab.core.location.GoogleLocationReminderManager
+import com.sap.codelab.core.location.ILocationEventParser
+import com.sap.codelab.core.location.LocationReminderManager
+import com.sap.codelab.core.notification.AndroidMemoNotificationManager
+import com.sap.codelab.core.notification.MemoNotificationManager
 
 /**
  * Application-wide dependency container
  */
 internal object AppDependencies {
 
-    val geofenceEventParser: IGeofenceEventParser = GmsGeofenceEventParser()
+    val locationEventParser: ILocationEventParser = GmsGeofenceEventParser()
 
     lateinit var locationReminderManager: LocationReminderManager
         private set
