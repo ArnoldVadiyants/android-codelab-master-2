@@ -4,6 +4,26 @@ The base is written in kotlin.
 
 (!)If you have the NDK plugin installed, please disable it for the project, as errors may occur.
 
+## What was implemented
+
+- Location picker screen with OpenStreetMap (OSMDroid)
+- Location UI in CreateMemo: empty state, selected state with inline map preview, Change/Clear actions
+- Landscape layout for CreateMemo: two-column view with form on the left and map on the right
+- Location-based notifications via Android Geofencing API (200 m radius)
+- Background delivery via `BroadcastReceiver` + `WorkManager`
+- Geofence restore on device boot and app update
+- Geofence removal when a memo is marked as done
+- Abstraction layer for map and geofencing libraries (swappable via interfaces)
+- MVVM applied to CreateMemo: `CreateMemoViewModel` with `StateFlow`-based UI state
+- Feature-based package structure (`core`, `create`, `detail`, `home`)
+- Manual dependency injection via `AppDependencies`, `AppViewModelFactory`, `AppWorkerFactory`
+- Unit tests: ViewModels, NotificationManager, LocationReminderManager, Worker, Memo model
+- UI tests: CreateMemo, ViewMemo
+- Migrated dependencies to `libs.versions.toml` (Version Catalog)
+- Target SDK updated to 37, edge-to-edge support
+- `DiffUtil` in `MemoAdapter`
+- Screen-rotation state retention for CreateMemo, ViewMemo, and map picker
+
 # Android Coding Challenges
 Coding challenges are useful when the applicant does not provide a github repository or any work samples. Even if a github repository has been provided it is generally a good idea to give the applicant a task to solve and have him present his solution in a separate session. 
 
