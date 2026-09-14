@@ -14,7 +14,10 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.sap.codelab.R
 import com.sap.codelab.core.location.IMapLocationPicker
 import com.sap.codelab.core.location.LatLng
@@ -23,6 +26,7 @@ import com.sap.codelab.core.location.OsmMapLocationPicker
 import com.sap.codelab.core.utils.extensions.applyWindowInsets
 import com.sap.codelab.core.utils.extensions.empty
 import com.sap.codelab.databinding.ActivityCreateMemoBinding
+import kotlinx.coroutines.launch
 
 /**
  * Activity that allows a user to create a new Memo.
@@ -30,7 +34,7 @@ import com.sap.codelab.databinding.ActivityCreateMemoBinding
 internal class CreateMemo : AppCompatActivity() {
 
     private lateinit var binding: ActivityCreateMemoBinding
-    private lateinit var model: CreateMemoViewModel
+    private lateinit var viewModel: CreateMemoViewModel
     private lateinit var mapView: LocationMapView
     private val locationPicker: IMapLocationPicker = OsmMapLocationPicker()
 
@@ -48,8 +52,7 @@ internal class CreateMemo : AppCompatActivity() {
     private val mapPickerLauncher = registerForActivityResult(StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             locationPicker.parseResult(result.data)?.let { latLng ->
-                model.updateLocation(latLng)
-                showLocationSelected(latLng)
+                viewModel.updateLocation(latLng)
                 showPermissionRationaleAndRequest()
             }
         }
@@ -61,27 +64,53 @@ internal class CreateMemo : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         mapView = binding.contentCreateMemo.locationMapView as LocationMapView
-        model = ViewModelProvider(this)[CreateMemoViewModel::class.java]
+        viewModel = ViewModelProvider(this)[CreateMemoViewModel::class.java]
         applyWindowInsets(binding.root, binding.appBar)
 
         setupLocationButtons()
+        observeViewModel()
+    }
 
-        model.location?.let { showLocationSelected(it) } ?: showLocationEmpty()
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState.collect { state ->
+                        updateLocationUi(state.location)
+                        updateValidationErrors(state.titleError, state.descriptionError)
+                    }
+                }
+                launch {
+                    viewModel.savedEvent.collect {
+                        setResult(RESULT_OK)
+                        finish()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateLocationUi(location: LatLng?) {
+        if (location != null) showLocationSelected(location) else showLocationEmpty()
+    }
+
+    private fun updateValidationErrors(titleError: Boolean, descriptionError: Boolean) {
+        binding.contentCreateMemo.run {
+            memoTitleContainer.error = getErrorMessage(titleError, R.string.memo_title_empty_error)
+            memoDescriptionContainer.error = getErrorMessage(descriptionError, R.string.memo_text_empty_error)
+        }
     }
 
     private fun setupLocationButtons() {
         binding.contentCreateMemo.run {
             pickLocationButton.setOnClickListener { launchMapPicker() }
             changeLocationButton.setOnClickListener { launchMapPicker() }
-            clearLocationButton.setOnClickListener {
-                model.clearLocation()
-                showLocationEmpty()
-            }
+            clearLocationButton.setOnClickListener { viewModel.clearLocation() }
         }
     }
 
     private fun launchMapPicker() {
-        mapPickerLauncher.launch(locationPicker.createIntent(this, model.location))
+        mapPickerLauncher.launch(locationPicker.createIntent(this, viewModel.uiState.value.location))
     }
 
     private fun showLocationSelected(latLng: LatLng) {
@@ -123,36 +152,13 @@ internal class CreateMemo : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_save -> {
-                saveMemo()
+                binding.contentCreateMemo.run {
+                    viewModel.trySave(memoTitle.text.toString(), memoDescription.text.toString())
+                }
                 true
             }
 
             else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    /**
-     * Saves the memo if the input is valid; otherwise shows the corresponding error messages.
-     */
-    private fun saveMemo() {
-        binding.contentCreateMemo.run {
-            model.updateMemo(memoTitle.text.toString(), memoDescription.text.toString())
-            if (model.isMemoValid()) {
-                model.saveMemo()
-                setResult(RESULT_OK)
-                finish()
-            } else {
-                showValidationErrors()
-            }
-        }
-    }
-
-    private fun showValidationErrors() {
-        binding.contentCreateMemo.run {
-            memoTitleContainer.error =
-                getErrorMessage(model.hasTitleError(), R.string.memo_title_empty_error)
-            memoDescriptionContainer.error =
-                getErrorMessage(model.hasTextError(), R.string.memo_text_empty_error)
         }
     }
 

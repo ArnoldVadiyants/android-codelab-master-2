@@ -15,6 +15,7 @@ import io.mockk.slot
 import io.mockk.unmockkAll
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -39,6 +40,7 @@ class CreateMemoViewModelTest {
         every { ScopeProvider.application } returns CoroutineScope(UnconfinedTestDispatcher())
         locationManager = mockk(relaxed = true)
         every { AppDependencies.locationReminderManager } returns locationManager
+        coEvery { Repository.saveMemo(any()) } returns 1L
         viewModel = CreateMemoViewModel()
     }
 
@@ -48,75 +50,72 @@ class CreateMemoViewModelTest {
     }
 
     @Test
-    fun `isMemoValid is false before any input`() {
-        assertFalse(viewModel.isMemoValid())
+    fun `trySave sets both errors when title and description are blank`() {
+        viewModel.trySave("", "")
+        assertTrue(viewModel.uiState.value.titleError)
+        assertTrue(viewModel.uiState.value.descriptionError)
     }
 
     @Test
-    fun `isMemoValid is false when title is blank`() {
-        viewModel.updateMemo("", "Some description")
-        assertFalse(viewModel.isMemoValid())
+    fun `trySave sets title error when title is blank`() {
+        viewModel.trySave("", "Some description")
+        assertTrue(viewModel.uiState.value.titleError)
+        assertFalse(viewModel.uiState.value.descriptionError)
     }
 
     @Test
-    fun `isMemoValid is false when description is blank`() {
-        viewModel.updateMemo("Title", "")
-        assertFalse(viewModel.isMemoValid())
+    fun `trySave sets description error when description is blank`() {
+        viewModel.trySave("Title", "")
+        assertFalse(viewModel.uiState.value.titleError)
+        assertTrue(viewModel.uiState.value.descriptionError)
     }
 
     @Test
-    fun `isMemoValid is false when both title and description are whitespace`() {
-        viewModel.updateMemo("   ", "   ")
-        assertFalse(viewModel.isMemoValid())
+    fun `trySave sets both errors when title and description are whitespace`() {
+        viewModel.trySave("   ", "   ")
+        assertTrue(viewModel.uiState.value.titleError)
+        assertTrue(viewModel.uiState.value.descriptionError)
     }
 
     @Test
-    fun `isMemoValid is true when both title and description are non-blank`() {
-        viewModel.updateMemo("My title", "My description")
-        assertTrue(viewModel.isMemoValid())
+    fun `trySave emits savedEvent when memo is valid`() = runTest(UnconfinedTestDispatcher()) {
+        val events = mutableListOf<Unit>()
+        val job = launch { viewModel.savedEvent.collect { events.add(it) } }
+
+        viewModel.trySave("My title", "My description")
+
+        assertEquals(1, events.size)
+        job.cancel()
     }
 
     @Test
-    fun `hasTitleError is true when title is blank`() {
-        viewModel.updateMemo("", "Description")
-        assertTrue(viewModel.hasTitleError())
-    }
+    fun `trySave does not emit savedEvent when title is blank`() = runTest(UnconfinedTestDispatcher()) {
+        val events = mutableListOf<Unit>()
+        val job = launch { viewModel.savedEvent.collect { events.add(it) } }
 
-    @Test
-    fun `hasTitleError is false when title is non-blank`() {
-        viewModel.updateMemo("Title", "Description")
-        assertFalse(viewModel.hasTitleError())
-    }
+        viewModel.trySave("", "Description")
 
-    @Test
-    fun `hasTextError is true when description is blank`() {
-        viewModel.updateMemo("Title", "")
-        assertTrue(viewModel.hasTextError())
-    }
-
-    @Test
-    fun `hasTextError is false when description is non-blank`() {
-        viewModel.updateMemo("Title", "Description")
-        assertFalse(viewModel.hasTextError())
+        assertTrue(events.isEmpty())
+        job.cancel()
     }
 
     @Test
     fun `location is null initially`() {
-        assertNull(viewModel.location)
+        assertNull(viewModel.uiState.value.location)
     }
 
     @Test
     fun `updateLocation stores the given location`() {
         val latLng = LatLng(52.52, 13.40)
         viewModel.updateLocation(latLng)
-        assertEquals(latLng, viewModel.location)
+        assertEquals(latLng, viewModel.uiState.value.location)
     }
 
     @Test
     fun `clearLocation sets location back to null`() {
         viewModel.updateLocation(LatLng(52.52, 13.40))
         viewModel.clearLocation()
-        assertNull(viewModel.location)
+        assertNull(viewModel.uiState.value.location)
     }
 
     @Test
@@ -124,58 +123,50 @@ class CreateMemoViewModelTest {
         viewModel.updateLocation(LatLng(1.0, 2.0))
         val newLocation = LatLng(52.52, 13.40)
         viewModel.updateLocation(newLocation)
-        assertEquals(newLocation, viewModel.location)
+        assertEquals(newLocation, viewModel.uiState.value.location)
     }
 
     @Test
-    fun `saveMemo encodes selected location as Double in persisted memo`() = runTest {
+    fun `trySave encodes selected location as Double in persisted memo`() = runTest {
         val lat = 52.52
         val lng = 13.40
         viewModel.updateLocation(LatLng(lat, lng))
-        viewModel.updateMemo("Title", "Desc")
 
         val savedMemoSlot = slot<Memo>()
         coEvery { Repository.saveMemo(capture(savedMemoSlot)) } returns 1L
 
-        viewModel.saveMemo()
+        viewModel.trySave("Title", "Desc")
 
         assertEquals(lat, savedMemoSlot.captured.reminderLatitude, 0.0)
         assertEquals(lng, savedMemoSlot.captured.reminderLongitude, 0.0)
     }
 
     @Test
-    fun `saveMemo stores zero coordinates when no location is selected`() = runTest {
-        viewModel.updateMemo("Title", "Desc")
-
+    fun `trySave stores zero coordinates when no location is selected`() = runTest {
         val savedMemoSlot = slot<Memo>()
         coEvery { Repository.saveMemo(capture(savedMemoSlot)) } returns 1L
 
-        viewModel.saveMemo()
+        viewModel.trySave("Title", "Desc")
 
         assertEquals(0.0, savedMemoSlot.captured.reminderLatitude, 0.0)
         assertEquals(0.0, savedMemoSlot.captured.reminderLongitude, 0.0)
     }
 
     @Test
-    fun `saveMemo registers geofence when location is selected`() = runTest {
+    fun `trySave registers geofence when location is selected`() = runTest {
         val lat = 52.52
         val lng = 13.40
         viewModel.updateLocation(LatLng(lat, lng))
-        viewModel.updateMemo("Title", "Desc")
-
         coEvery { Repository.saveMemo(any()) } returns 42L
 
-        viewModel.saveMemo()
+        viewModel.trySave("Title", "Desc")
 
         coVerify { locationManager.addReminder(memoId = 42L, latitude = lat, longitude = lng) }
     }
 
     @Test
-    fun `saveMemo does not register geofence when no location is selected`() = runTest {
-        viewModel.updateMemo("Title", "Desc")
-        coEvery { Repository.saveMemo(any()) } returns 1L
-
-        viewModel.saveMemo()
+    fun `trySave does not register geofence when no location is selected`() = runTest {
+        viewModel.trySave("Title", "Desc")
 
         coVerify(exactly = 0) { locationManager.addReminder(any(), any(), any()) }
     }
