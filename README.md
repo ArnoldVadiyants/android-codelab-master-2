@@ -24,6 +24,9 @@ The base is written in kotlin.
 - `DiffUtil` in `MemoAdapter`
 - Screen-rotation state retention for CreateMemo, ViewMemo, and map picker
 
+## Demo
+https://github.com/user-attachments/assets/1c4fad10-b488-406f-ba2a-8ddc36b27286
+
 # Android Coding Challenges
 Coding challenges are useful when the applicant does not provide a github repository or any work samples. Even if a github repository has been provided it is generally a good idea to give the applicant a task to solve and have him present his solution in a separate session. 
 
