@@ -1,10 +1,9 @@
 package com.sap.codelab.create
 
-import com.sap.codelab.AppDependencies
 import com.sap.codelab.core.location.LatLng
 import com.sap.codelab.core.location.LocationReminderManager
 import com.sap.codelab.core.model.Memo
-import com.sap.codelab.core.repository.Repository
+import com.sap.codelab.core.repository.IMemoRepository
 import com.sap.codelab.core.utils.coroutines.ScopeProvider
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -29,19 +28,18 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class CreateMemoViewModelTest {
 
-    private lateinit var viewModel: CreateMemoViewModel
+    private lateinit var repository: IMemoRepository
     private lateinit var locationManager: LocationReminderManager
+    private lateinit var viewModel: CreateMemoViewModel
 
     @Before
     fun setUp() {
-        mockkObject(Repository)
-        mockkObject(AppDependencies)
         mockkObject(ScopeProvider)
         every { ScopeProvider.application } returns CoroutineScope(UnconfinedTestDispatcher())
+        repository = mockk(relaxed = true)
         locationManager = mockk(relaxed = true)
-        every { AppDependencies.locationReminderManager } returns locationManager
-        coEvery { Repository.saveMemo(any()) } returns 1L
-        viewModel = CreateMemoViewModel()
+        coEvery { repository.saveMemo(any()) } returns 1L
+        viewModel = CreateMemoViewModel(repository, locationManager)
     }
 
     @After
@@ -133,7 +131,7 @@ class CreateMemoViewModelTest {
         viewModel.updateLocation(LatLng(lat, lng))
 
         val savedMemoSlot = slot<Memo>()
-        coEvery { Repository.saveMemo(capture(savedMemoSlot)) } returns 1L
+        coEvery { repository.saveMemo(capture(savedMemoSlot)) } returns 1L
 
         viewModel.trySave("Title", "Desc")
 
@@ -144,7 +142,7 @@ class CreateMemoViewModelTest {
     @Test
     fun `trySave stores zero coordinates when no location is selected`() = runTest {
         val savedMemoSlot = slot<Memo>()
-        coEvery { Repository.saveMemo(capture(savedMemoSlot)) } returns 1L
+        coEvery { repository.saveMemo(capture(savedMemoSlot)) } returns 1L
 
         viewModel.trySave("Title", "Desc")
 
@@ -157,7 +155,7 @@ class CreateMemoViewModelTest {
         val lat = 52.52
         val lng = 13.40
         viewModel.updateLocation(LatLng(lat, lng))
-        coEvery { Repository.saveMemo(any()) } returns 42L
+        coEvery { repository.saveMemo(any()) } returns 42L
 
         viewModel.trySave("Title", "Desc")
 

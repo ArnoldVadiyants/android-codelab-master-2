@@ -4,27 +4,24 @@ import android.content.Context
 import androidx.work.ListenableWorker.Result
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.sap.codelab.AppDependencies
 import com.sap.codelab.core.location.LocationReminderManager
 import com.sap.codelab.core.model.Memo
 import com.sap.codelab.core.notification.MemoNotificationManager
-import com.sap.codelab.core.repository.Repository
+import com.sap.codelab.core.repository.IMemoRepository
 import com.sap.codelab.core.utils.KEY_MEMO_ID
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
 class LocationReminderTriggeredWorkerTest {
 
+    private lateinit var repository: IMemoRepository
     private lateinit var notificationManager: MemoNotificationManager
     private lateinit var locationManager: LocationReminderManager
 
@@ -32,22 +29,14 @@ class LocationReminderTriggeredWorkerTest {
         val context = mockk<Context>(relaxed = true)
         val params = mockk<WorkerParameters>(relaxed = true)
         every { params.inputData } returns workDataOf(KEY_MEMO_ID to memoId)
-        return LocationReminderTriggeredWorker(context, params)
+        return LocationReminderTriggeredWorker(context, params, repository, notificationManager, locationManager)
     }
 
     @Before
     fun setUp() {
-        mockkObject(Repository)
-        mockkObject(AppDependencies)
+        repository = mockk(relaxed = true)
         notificationManager = mockk(relaxed = true)
         locationManager = mockk(relaxed = true)
-        every { AppDependencies.notificationManager } returns notificationManager
-        every { AppDependencies.locationReminderManager } returns locationManager
-    }
-
-    @After
-    fun tearDown() {
-        unmockkAll()
     }
 
     @Test
@@ -58,14 +47,14 @@ class LocationReminderTriggeredWorkerTest {
 
     @Test
     fun `doWork returns success when memo has been deleted`() = runTest {
-        coEvery { Repository.getMemoById(any()) } throws RuntimeException("not found")
+        coEvery { repository.getMemoById(any()) } throws RuntimeException("not found")
         val result = buildWorker(memoId = 1L).doWork()
         assertEquals(Result.success(), result)
     }
 
     @Test
     fun `doWork returns success without notification when memo is already done`() = runTest {
-        coEvery { Repository.getMemoById(1L) } returns testMemo(isDone = true)
+        coEvery { repository.getMemoById(1L) } returns testMemo(isDone = true)
         val result = buildWorker(memoId = 1L).doWork()
         assertEquals(Result.success(), result)
         verify(exactly = 0) { notificationManager.showLocationReminder(any()) }
@@ -73,7 +62,7 @@ class LocationReminderTriggeredWorkerTest {
 
     @Test
     fun `doWork returns success without notification when memo has no location reminder`() = runTest {
-        coEvery { Repository.getMemoById(1L) } returns testMemo(lat = 0.0, lng = 0.0)
+        coEvery { repository.getMemoById(1L) } returns testMemo(lat = 0.0, lng = 0.0)
         val result = buildWorker(memoId = 1L).doWork()
         assertEquals(Result.success(), result)
         verify(exactly = 0) { notificationManager.showLocationReminder(any()) }
@@ -82,8 +71,8 @@ class LocationReminderTriggeredWorkerTest {
     @Test
     fun `doWork shows location reminder notification for active memo`() = runTest {
         val memo = testMemo()
-        coEvery { Repository.getMemoById(memo.id) } returns memo
-        coEvery { Repository.saveMemo(any()) } returns memo.id
+        coEvery { repository.getMemoById(memo.id) } returns memo
+        coEvery { repository.saveMemo(any()) } returns memo.id
 
         buildWorker(memoId = memo.id).doWork()
 
@@ -93,19 +82,19 @@ class LocationReminderTriggeredWorkerTest {
     @Test
     fun `doWork marks memo as done after notification`() = runTest {
         val memo = testMemo()
-        coEvery { Repository.getMemoById(memo.id) } returns memo
-        coEvery { Repository.saveMemo(any()) } returns memo.id
+        coEvery { repository.getMemoById(memo.id) } returns memo
+        coEvery { repository.saveMemo(any()) } returns memo.id
 
         buildWorker(memoId = memo.id).doWork()
 
-        coVerify { Repository.saveMemo(memo.copy(isDone = true)) }
+        coVerify { repository.saveMemo(memo.copy(isDone = true)) }
     }
 
     @Test
     fun `doWork removes geofence after notification`() = runTest {
         val memo = testMemo()
-        coEvery { Repository.getMemoById(memo.id) } returns memo
-        coEvery { Repository.saveMemo(any()) } returns memo.id
+        coEvery { repository.getMemoById(memo.id) } returns memo
+        coEvery { repository.saveMemo(any()) } returns memo.id
 
         buildWorker(memoId = memo.id).doWork()
 
@@ -115,8 +104,8 @@ class LocationReminderTriggeredWorkerTest {
     @Test
     fun `doWork returns success on the happy path`() = runTest {
         val memo = testMemo()
-        coEvery { Repository.getMemoById(memo.id) } returns memo
-        coEvery { Repository.saveMemo(any()) } returns memo.id
+        coEvery { repository.getMemoById(memo.id) } returns memo
+        coEvery { repository.saveMemo(any()) } returns memo.id
 
         val result = buildWorker(memoId = memo.id).doWork()
 
@@ -126,8 +115,8 @@ class LocationReminderTriggeredWorkerTest {
     @Test
     fun `doWork returns success even when saveMemo throws`() = runTest {
         val memo = testMemo()
-        coEvery { Repository.getMemoById(memo.id) } returns memo
-        coEvery { Repository.saveMemo(any()) } throws RuntimeException("DB error")
+        coEvery { repository.getMemoById(memo.id) } returns memo
+        coEvery { repository.saveMemo(any()) } throws RuntimeException("DB error")
 
         val result = buildWorker(memoId = memo.id).doWork()
 
@@ -137,8 +126,8 @@ class LocationReminderTriggeredWorkerTest {
     @Test
     fun `doWork returns success even when removeReminder throws`() = runTest {
         val memo = testMemo()
-        coEvery { Repository.getMemoById(memo.id) } returns memo
-        coEvery { Repository.saveMemo(any()) } returns memo.id
+        coEvery { repository.getMemoById(memo.id) } returns memo
+        coEvery { repository.saveMemo(any()) } returns memo.id
         coEvery { locationManager.removeReminder(any()) } throws RuntimeException("GMS error")
 
         val result = buildWorker(memoId = memo.id).doWork()

@@ -7,6 +7,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.sap.codelab.AppDependencies
 import com.sap.codelab.R
 import com.sap.codelab.core.location.LocationMapView
 import com.sap.codelab.core.model.Memo
@@ -31,7 +32,7 @@ internal class ViewMemo : AppCompatActivity() {
         mapView = binding.contentCreateMemo.locationMapView as LocationMapView
         applyWindowInsets(binding.root, binding.appBar)
         // Initialize views with the passed memo id
-        val model = ViewModelProvider(this)[ViewMemoViewModel::class.java]
+        val model = ViewModelProvider(this, AppDependencies.viewModelFactory)[ViewMemoViewModel::class.java]
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.memo.collect { value ->

@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.sap.codelab.AppDependencies
 import com.sap.codelab.R
 import com.sap.codelab.core.model.Memo
 import com.sap.codelab.core.utils.KEY_MEMO_ID
@@ -41,7 +42,7 @@ internal class Home : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        model = ViewModelProvider(this)[HomeViewModel::class.java]
+        model = ViewModelProvider(this, AppDependencies.viewModelFactory)[HomeViewModel::class.java]
         applyWindowInsets(binding.root, binding.appBar)
 
         // Setup the adapter and the recycler view

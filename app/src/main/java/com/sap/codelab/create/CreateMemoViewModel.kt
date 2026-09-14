@@ -1,10 +1,10 @@
 package com.sap.codelab.create
 
 import androidx.lifecycle.ViewModel
-import com.sap.codelab.AppDependencies
 import com.sap.codelab.core.location.LatLng
+import com.sap.codelab.core.location.LocationReminderManager
 import com.sap.codelab.core.model.Memo
-import com.sap.codelab.core.repository.Repository
+import com.sap.codelab.core.repository.IMemoRepository
 import com.sap.codelab.core.utils.coroutines.ScopeProvider
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +18,10 @@ import kotlinx.coroutines.launch
 /**
  * ViewModel for matching CreateMemo view. Handles user interactions.
  */
-internal class CreateMemoViewModel : ViewModel() {
+internal class CreateMemoViewModel(
+    private val repository: IMemoRepository,
+    private val locationReminderManager: LocationReminderManager
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreateMemoUiState())
     val uiState: StateFlow<CreateMemoUiState> = _uiState.asStateFlow()
@@ -54,9 +57,9 @@ internal class CreateMemoViewModel : ViewModel() {
      */
     private fun persistMemo(memo: Memo, location: LatLng?) {
         ScopeProvider.application.launch {
-            val savedId = Repository.saveMemo(memo)
+            val savedId = repository.saveMemo(memo)
             if (location != null) {
-                AppDependencies.locationReminderManager.addReminder(
+                locationReminderManager.addReminder(
                     memoId = savedId,
                     latitude = location.latitude,
                     longitude = location.longitude

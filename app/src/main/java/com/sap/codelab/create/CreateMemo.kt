@@ -18,6 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.sap.codelab.AppDependencies
 import com.sap.codelab.R
 import com.sap.codelab.core.location.IMapLocationPicker
 import com.sap.codelab.core.location.LatLng
@@ -64,7 +65,7 @@ internal class CreateMemo : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         mapView = binding.contentCreateMemo.locationMapView as LocationMapView
-        viewModel = ViewModelProvider(this)[CreateMemoViewModel::class.java]
+        viewModel = ViewModelProvider(this, AppDependencies.viewModelFactory)[CreateMemoViewModel::class.java]
         applyWindowInsets(binding.root, binding.appBar)
 
         setupLocationButtons()

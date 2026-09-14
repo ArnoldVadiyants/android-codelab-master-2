@@ -2,9 +2,9 @@ package com.sap.codelab.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sap.codelab.AppDependencies
+import com.sap.codelab.core.location.LocationReminderManager
 import com.sap.codelab.core.model.Memo
-import com.sap.codelab.core.repository.Repository
+import com.sap.codelab.core.repository.IMemoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -12,7 +12,10 @@ import kotlinx.coroutines.launch
 /**
  * ViewModel for the Home Activity.
  */
-internal class HomeViewModel : ViewModel() {
+internal class HomeViewModel(
+    private val repository: IMemoRepository,
+    private val locationReminderManager: LocationReminderManager
+) : ViewModel() {
 
     private var isShowAll = false
     private val _memos: MutableStateFlow<List<Memo>> = MutableStateFlow(listOf())
@@ -24,7 +27,7 @@ internal class HomeViewModel : ViewModel() {
     fun loadAllMemos() {
         isShowAll = true
         viewModelScope.launch {
-            _memos.value = Repository.getAll()
+            _memos.value = repository.getAll()
         }
     }
 
@@ -34,7 +37,7 @@ internal class HomeViewModel : ViewModel() {
     fun loadOpenMemos() {
         isShowAll = false
         viewModelScope.launch {
-            _memos.value = Repository.getOpen()
+            _memos.value = repository.getOpen()
         }
     }
 
@@ -59,9 +62,9 @@ internal class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             // We'll only forward the update if the memo has been checked, since we don't offer to uncheck memos right now
             if (isChecked) {
-                Repository.saveMemo(memo.copy(isDone = true))
+                repository.saveMemo(memo.copy(isDone = true))
                 if (memo.hasLocationReminder) {
-                    AppDependencies.locationReminderManager.removeReminder(memo.id)
+                    locationReminderManager.removeReminder(memo.id)
                 }
             }
         }

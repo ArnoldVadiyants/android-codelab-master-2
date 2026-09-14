@@ -4,8 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.sap.codelab.AppDependencies
-import com.sap.codelab.core.repository.Repository
+import com.sap.codelab.core.location.LocationReminderManager
+import com.sap.codelab.core.repository.IMemoRepository
 
 /**
  * Re-registers geofences for all active location-reminder memos after a device reboot.
@@ -15,19 +15,21 @@ import com.sap.codelab.core.repository.Repository
  */
 internal class RestoreLocationRemindersWorker(
     appContext: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
+    private val repository: IMemoRepository,
+    private val locationReminderManager: LocationReminderManager,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         Log.d("RestoreLocationReminders", "RestoreLocationRemindersWorker started")
 
-        val memos = runCatching { Repository.getActiveLocationReminders() }
+        val memos = runCatching { repository.getActiveLocationReminders() }
             .getOrElse { return Result.retry() }
 
         memos.forEach { memo ->
             runCatching {
                 val location = memo.reminderLocation ?: return@runCatching
-                AppDependencies.locationReminderManager.addReminder(
+                locationReminderManager.addReminder(
                     memoId = memo.id,
                     latitude = location.latitude,
                     longitude = location.longitude

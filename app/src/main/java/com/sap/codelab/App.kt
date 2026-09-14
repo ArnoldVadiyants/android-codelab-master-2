@@ -1,7 +1,8 @@
 package com.sap.codelab
 
 import android.app.Application
-import com.sap.codelab.core.repository.Repository
+import androidx.work.Configuration
+import androidx.work.WorkManager
 
 /**
  * Extension of the Android Application class.
@@ -9,7 +10,12 @@ import com.sap.codelab.core.repository.Repository
 internal class App : Application() {
     override fun onCreate() {
         super.onCreate()
-        Repository.initialize(this)
         AppDependencies.initialize(this)
+        WorkManager.initialize(
+            this,
+            Configuration.Builder()
+                .setWorkerFactory(AppDependencies.workerFactory)
+                .build()
+        )
     }
 }
